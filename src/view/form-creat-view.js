@@ -1,7 +1,20 @@
 import {createElement} from '../render.js';
+import {capitalize} from '../util/string-util.js';
+import {formatDateOfTaskByConstant, formatsDate, getCurrentDate, getCurrentDatePlusDays} from '../util/date-util.js';
+
+/** Создает шаблон для типа события */
+const createTypeEventTemplate = (type) =>
+  (`<div class="event__type-item">
+        <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
+     </div>`);
+
+/** Создает шаблон для места назначения */
+const createDestinationTemplate = (nameDestinations) => (`<option value="${nameDestinations}">${nameDestinations}</option>`);
 
 /** Создать шаблон, для создания события */
-function createFormTemplate() {
+function createFormTemplate(points, nameDestinations) {
+  const types = points.map((item) => item.type);
   return (`
             <li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -16,52 +29,8 @@ function createFormTemplate() {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-
-                        <div class="event__type-item">
-                          <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                          <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                          <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                          <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                          <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                          <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                          <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                          <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                          <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                          <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-                        </div>
-                      </fieldset>
+                            ${types.map((item) => createTypeEventTemplate(item)).join('')}
+                        </fieldset>
                     </div>
                   </div>
 
@@ -71,18 +40,16 @@ function createFormTemplate() {
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Geneva" list="destination-list-1">
                     <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
+                      ${nameDestinations.map((item) => createDestinationTemplate(item)).join('')}
                     </datalist>
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateOfTaskByConstant(getCurrentDate(), formatsDate.FORMAT_DATE_TIME)}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateOfTaskByConstant(getCurrentDatePlusDays(1), formatsDate.FORMAT_DATE_TIME)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -90,7 +57,7 @@ function createFormTemplate() {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="0">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -103,8 +70,15 @@ function createFormTemplate() {
 
 /** Представление для формы создания события */
 export default class CreatForm {
+
+  constructor(pointModel) {
+    this.pointModel = pointModel;
+  }
+
   getTemplate() {
-    return createFormTemplate();
+    const points = this.pointModel.getPoints();
+    const nameDestinations = this.pointModel.getNameDestinations();
+    return createFormTemplate(points, nameDestinations);
   }
 
   getElement() {
