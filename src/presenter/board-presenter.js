@@ -9,18 +9,19 @@ import {render} from '../render.js';
 export default class BoardPresenter {
   editListComponent = new EventList();
 
-  constructor({container}) {
+  constructor({container, pointModel}) {
     this.container = container;
+    this.pointModel = pointModel;
   }
 
   init() {
     render(new SortView(), this.container);
     render(this.editListComponent, this.container);
-    render(new CreatForm(), this.editListComponent.getElement());
-    render(new EditForm(), this.editListComponent.getElement());
+    render(new CreatForm(this.pointModel), this.editListComponent.getElement());
+    render(new EditForm(this.pointModel), this.editListComponent.getElement());
 
-    for (let i = 0; i < 3; i++) {
-      render(new EventView(), this.editListComponent.getElement());
+    for (let count = 1; count < 4; count++) {
+      render(new EventView(count, this.pointModel), this.editListComponent.getElement());
     }
   }
 }
