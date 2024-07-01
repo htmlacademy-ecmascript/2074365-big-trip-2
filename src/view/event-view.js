@@ -1,8 +1,12 @@
-import {createElement} from '../render.js';
-import {formatDateOfTaskByConstant, formatsDate} from '../util/date-util.js';
+import {calculateTimeDifference, formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
 import {capitalize} from '../util/string-util.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Создать шаблон события */
+/**
+ * Создать шаблон события
+ * @param offers предложения
+ * @return {String}
+ */
 const createEventOffer = (offers) => {
   const {title, price} = offers;
   return (`
@@ -14,25 +18,32 @@ const createEventOffer = (offers) => {
   `);
 };
 
-/** Создать шаблон для события */
-function createEventTemplate(point, destination, offers) {
+/**
+ * Создать шаблон для события
+ * @param point точка маршруто
+ * @param destination назначение
+ * @param offers предложения
+ * @param timeDifference разница во времени
+ * @return {String}
+ */
+function createEventTemplate({point, destination, offers, timeDifference}) {
   const {type, dateFrom, dateTo, basePrice} = point;
   const {name} = destination;
   return (`
             <li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="2019-03-18">${formatDateOfTaskByConstant(dateFrom, formatsDate.FORMAT_DATE_MOUNT_DAY)}</time>
+                <time class="event__date" datetime="2019-03-18">${formatDateOfTaskByConstant(dateFrom, FormatsDate.FORMAT_DATE_MOUNT_DAY)}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${capitalize(type)} ${capitalize(name)}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="2019-03-18T10:30">${formatDateOfTaskByConstant(dateFrom, formatsDate.FORMAT_TIME)}</time>
+                    <time class="event__start-time" datetime="2019-03-18T10:30">${formatDateOfTaskByConstant(dateFrom, FormatsDate.FORMAT_TIME)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="2019-03-18T11:00">${formatDateOfTaskByConstant(dateTo, formatsDate.FORMAT_TIME)}</time>
+                    <time class="event__end-time" datetime="2019-03-18T11:00">${formatDateOfTaskByConstant(dateTo, FormatsDate.FORMAT_TIME)}</time>
                   </p>
-                  <p class="event__duration">30M</p>
+                  <p class="event__duration">${timeDifference}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
@@ -56,28 +67,56 @@ function createEventTemplate(point, destination, offers) {
 }
 
 /** Представление для события */
-export default class EventView {
+export default class EventView extends AbstractView {
 
-  constructor(count, pointModel) {
-    this.count = count;
-    this.pointModel = pointModel;
+  /** Идентификатор точки маршрута */
+  #id;
+
+  /** Модель точки */
+  #pointModel;
+
+  /**
+   * Конструктор
+   * @param id Идентификатор точки маршрута
+   * @param pointModel Модель точки
+   * @param editForm экземпляр редактирования формы
+   * @param onEditFormClick обработчик смены точки маршрута на форму редактирования
+   */
+  constructor({id, pointModel, editForm, onEditFormClick}) {
+    super();
+    this.#id = id;
+    this.#pointModel = pointModel;
+    this.#handleEditForm(editForm, onEditFormClick);
   }
 
-  getTemplate() {
-    const point = this.pointModel.getPoint(this.count);
-    const destination = this.pointModel.getDestinationById(point.destination);
-    const offers = this.pointModel.getOffersByPoint(point);
-    return createEventTemplate(point, destination, offers);
+  /**
+   * Обработчик слушетеля событий
+   * @param editForm экземпляр редактирования формы
+   * @param onEditFormClick обработчик смены точки маршрута на форму редактирования
+   */
+  #handleEditForm(editForm, onEditFormClick) {
+    const button = this.element.querySelector('.event__rollup-btn');
+    button.addEventListener('click', onEditFormClick.bind(null, editForm, this));
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
+  /**
+   * Получить шаблон события
+   * @return {String}
+   */
+  get template() {
+    const point = this.#pointModel.getPointById(this.#id);
+    const destination = this.#pointModel.getDestinationById(point.destination);
+    const offers = this.#pointModel.getOffersByPoint(point);
 
-  removeElement() {
-    this.element = null;
+    const {dateFrom, dateTo} = point;
+    const timeDifference = calculateTimeDifference(dateFrom, dateTo);
+    return createEventTemplate(
+      {
+        point: point,
+        destination: destination,
+        offers: offers,
+        timeDifference: timeDifference
+      }
+    );
   }
 }

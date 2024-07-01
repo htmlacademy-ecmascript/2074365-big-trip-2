@@ -1,9 +1,9 @@
-import {getRandomArrayElements, getRandomNumber, isFavorite} from '../util/random-generator-util.js';
+import {getRandomNumber, isFavorite} from '../util/random-generator-util.js';
 
-/** количество точек */
-const COUNT_POINTS = 4;
-
-/** моки точек */
+/**
+ * Моки точек
+ * @return {Array}
+ */
 const mockPoints = [
   {
     id: 'e171cfc7-b557-4f37-8cc3-fd84e9a0f6f4',
@@ -98,7 +98,7 @@ const mockPoints = [
     id: '3d70845b-7891-4f55-8a01-9debb880ba60',
     basePrice: getRandomNumber(80, 300),
     dateFrom: '2024-05-20T17:30:00.745Z',
-    dateTo: '2024-05-20T18:00:00.157Z',
+    dateTo: '2024-05-20T17:41:03.745Z',
     destination: '334fbec6-1969-4a42-b47b-ef15f0ce4a0e',
     isFavorite: isFavorite(),
     offers: [
@@ -120,8 +120,8 @@ const mockPoints = [
   }
 ];
 
-/** Получить случайные точки маршрута */
-export const getRandomPoints = () => getRandomArrayElements(mockPoints, COUNT_POINTS);
-
-/** Получить все точки */
+/**
+ * Получить все точки
+ * @return {Array}
+ */
 export const getPoints = () => mockPoints;

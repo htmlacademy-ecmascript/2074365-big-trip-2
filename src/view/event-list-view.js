@@ -1,26 +1,23 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Создать шаблон для списка событий */
+/**
+ * Создать шаблон для списка событий
+ * @return {String}
+ */
 function createEventListTemplate() {
-  return (`
+  return `
             <ul class="trip-events__list"></ul>
-  `);
+         `;
 }
 
 /** Представление для списка событий */
-export default class EventList {
-  getTemplate() {
+export default class EventList extends AbstractView {
+
+  /**
+   * Получить шаблон списка событий
+   * @return {String}
+   */
+  get template() {
     return createEventListTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,6 +1,9 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Создать шаблон для информации о поездке */
+/**
+ * Создать шаблон для информации о поездке
+ * @return {String}
+ */
 function createInfoTripTemplate() {
   return (`
         <section class="trip-main__trip-info  trip-info">
@@ -18,19 +21,13 @@ function createInfoTripTemplate() {
 }
 
 /** Представление для информации о поездке */
-export default class InfoTrip {
-  getTemplate() {
+export default class InfoTrip extends AbstractView {
+
+  /**
+   * Получить шаблон информации назначения
+   * @return {String}
+   */
+  get template() {
     return createInfoTripTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
