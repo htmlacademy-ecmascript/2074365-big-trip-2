@@ -1,6 +1,9 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Создать шаблон для сортировки */
+/**
+ * Создать шаблон для сортировки
+ * @return {String}
+ */
 function createSortTemplate() {
   return (`
           <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -33,19 +36,13 @@ function createSortTemplate() {
 }
 
 /** Представление для компонента сортировки */
-export default class SortView {
-  getTemplate() {
+export default class SortView extends AbstractView {
+
+  /**
+   * Получить шаблон сортировки
+   * @return {String}
+   */
+  get template() {
     return createSortTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

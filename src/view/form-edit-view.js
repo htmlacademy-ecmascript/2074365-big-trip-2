@@ -1,18 +1,34 @@
-import {createElement} from '../render.js';
 import {capitalize} from '../util/string-util.js';
-import {formatDateOfTaskByConstant, formatsDate} from '../util/date-util.js';
+import {formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Получить признак выбранного */
+/**
+ * Получить признак выбранного
+ * @param point точка маршрута
+ * @param offer предложение
+ * @return {String}
+ */
 const getChecked = (point, offer) => point.offers.includes(offer.id) ? 'checked' : '';
 
-/** Создает шаблон для типа события */
+/**
+ * Создает шаблон для типа события
+ * @param type тип шаблона
+ * @return {String}
+ */
 const createTypeEventTemplate = (type) =>
   (`<div class="event__type-item">
         <input id="event-type-${type}-2" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
         <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-2">${capitalize(type)}</label>
      </div>`);
 
-/** Создает шаблон для предложений */
+/**
+ * Создает шаблон для предложений
+ * @param offer предложение
+ * @param type тип шаблона
+ * @param index индекс
+ * @param point точка маршрута
+ * @return {String}
+ */
 const createOffersTemplate = (offer, type, index, point) => {
   const checked = getChecked(point, offer);
   const {title, price} = offer;
@@ -26,10 +42,22 @@ const createOffersTemplate = (offer, type, index, point) => {
            </div>`);
 };
 
-/** Создает шаблон для места назначения */
+/**
+ * Создает шаблон для места назначения
+ * @param nameDestinations наименование назначения
+ * @return {String}
+ */
 const createDestinationTemplate = (nameDestinations) => (`<option value="${nameDestinations}">${nameDestinations}</option>`);
 
-/** Создать шаблон для редактирования события */
+/**
+ * Создать шаблон для редактирования события
+ * @param point точка маршрута
+ * @param points точки маршрутов
+ * @param destination назначение
+ * @param nameDestinations наименование назначения
+ * @param offers предложения
+ * @return {String}
+ */
 function createEditFormTemplate(point, points, destination, nameDestinations, offers) {
   const {type, dateFrom, dateTo, basePrice} = point;
   const {name, description} = destination;
@@ -63,10 +91,10 @@ function createEditFormTemplate(point, points, destination, nameDestinations, of
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-2">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value='${formatDateOfTaskByConstant(dateFrom, formatsDate.FORMAT_DATE_TIME)}'>
+                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value='${formatDateOfTaskByConstant(dateFrom, FormatsDate.FORMAT_DATE_TIME)}'>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-2">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value='${formatDateOfTaskByConstant(dateTo, formatsDate.FORMAT_DATE_TIME)}'>
+                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value='${formatDateOfTaskByConstant(dateTo, FormatsDate.FORMAT_DATE_TIME)}'>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -102,29 +130,46 @@ function createEditFormTemplate(point, points, destination, nameDestinations, of
 }
 
 /** Представление для редактирования события */
-export default class EditForm {
+export default class EditForm extends AbstractView {
 
-  constructor(pointModel) {
-    this.pointModel = pointModel;
+  /** Идентификатор точки маршрута */
+  #id;
+
+  /** Модель точки */
+  #pointModel;
+
+  /**
+   * Конструктор
+   * @param id Идентификатор точки маршрута
+   * @param pointModel Модель точки
+   * @param onFormSubmitClick Обработчик отправки формы
+   */
+  constructor({id, pointModel, onFormSubmitClick}) {
+    super();
+    this.#id = id;
+    this.#pointModel = pointModel;
+    this.#handleFormSubmit(onFormSubmitClick);
   }
 
-  getTemplate = () => {
-    const point = this.pointModel.getPoint(0);
-    const points = this.pointModel.getPoints();
-    const destination = this.pointModel.getDestinationById(point.destination);
-    const nameDestinations = this.pointModel.getNameDestinations();
-    const offers = this.pointModel.getOffersByPoint(point);
+  /**
+   * Обработчик слушетеля событий отправки формы
+   * @param onFormSubmitClick Обработчик отправки формы
+   */
+  #handleFormSubmit(onFormSubmitClick) {
+    const form = this.element.querySelector('.event--edit');
+    form.addEventListener('submit', onFormSubmitClick);
+  }
+
+  /**
+   * Получить шаблон редактирования формы
+   * @return {String}
+   */
+  get template() {
+    const point = this.#pointModel.getPointById(this.#id);
+    const points = this.#pointModel.points;
+    const destination = this.#pointModel.getDestinationById(point.destination);
+    const nameDestinations = this.#pointModel.nameDestinations;
+    const offers = this.#pointModel.getOffersByPoint(point);
     return createEditFormTemplate(point, points, destination, nameDestinations, offers);
-  };
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,5 +1,9 @@
 import {getRandomArrayElement, getRandomNumber} from '../util/random-generator-util';
 
+/**
+ * Массив описаний
+ * @return {Array}
+ */
 const descriptions = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
@@ -14,6 +18,10 @@ const descriptions = [
   'In rutrum ac purus sit amet tempus.'
 ];
 
+/**
+ * Массив городов
+ * @return {Array}
+ */
 const cities = [
   'London', 'Paris', 'New York', 'Tokyo', 'Sydney', 'Rome', 'Berlin', 'Madrid',
   'Moscow', 'Cairo', 'Istanbul', 'Buenos Aires', 'Los Angeles', 'Chicago', 'Toronto',
@@ -52,6 +60,10 @@ const cities = [
   'Gold Coast', 'Newcastle', 'Wollongong', 'Cairns', 'Darwin', 'Townsville', 'Alice Springs'
 ];
 
+/**
+ * Получить изображения
+ * @return {Array}
+ */
 const getPictures = () => {
   const count = getRandomNumber(1, 5);
   const pictures = [];
@@ -66,6 +78,10 @@ const getPictures = () => {
   return pictures;
 };
 
+/**
+ * Моки описаний
+ * @return {Array}
+ */
 const mockDestinations = [
   {
     id: 'e7d13322-b09f-4268-8d10-4fbd98e0e1b1',
@@ -123,4 +139,8 @@ const mockDestinations = [
   },
 ];
 
+/**
+ * Получить моки описаний
+ * @return {Array}
+ */
 export const getMockDestinations = () => mockDestinations;

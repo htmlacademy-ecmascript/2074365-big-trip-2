@@ -1,5 +1,9 @@
 import {getRandomNumber} from '../util/random-generator-util.js';
 
+/**
+ * Моки предложений
+ * @return {Array}
+ */
 const mockOffers = [
   {
     type: 'taxi',
@@ -186,4 +190,8 @@ const mockOffers = [
   }
 ];
 
+/**
+ * Получить моки предложений
+ * @return {Array}
+ */
 export const getMockOffers = () => mockOffers;

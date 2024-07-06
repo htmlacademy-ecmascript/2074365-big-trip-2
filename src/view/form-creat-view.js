@@ -1,18 +1,31 @@
-import {createElement} from '../render.js';
 import {capitalize} from '../util/string-util.js';
-import {formatDateOfTaskByConstant, formatsDate, getCurrentDate, getCurrentDatePlusDays} from '../util/date-util.js';
+import {formatDateOfTaskByConstant, FormatsDate, getCurrentDate, getCurrentDatePlusDays} from '../util/date-util.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-/** Создает шаблон для типа события */
+/**
+ * Создает шаблон для типа события
+ * @param type тип для шаблона
+ * @return {String}
+ */
 const createTypeEventTemplate = (type) =>
   (`<div class="event__type-item">
         <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
         <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
      </div>`);
 
-/** Создает шаблон для места назначения */
+/**
+ * Создает шаблон для места назначения
+ * @param nameDestinations наименование назначения
+ * @return {String}
+ */
 const createDestinationTemplate = (nameDestinations) => (`<option value="${nameDestinations}">${nameDestinations}</option>`);
 
-/** Создать шаблон, для создания события */
+/**
+ * Создать шаблон, для создания события
+ * @param points точки маршрута
+ * @param nameDestinations наименование назначения
+ * @return {String}
+ */
 function createFormTemplate(points, nameDestinations) {
   const types = points.map((item) => item.type);
   return (`
@@ -46,10 +59,10 @@ function createFormTemplate(points, nameDestinations) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateOfTaskByConstant(getCurrentDate(), formatsDate.FORMAT_DATE_TIME)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateOfTaskByConstant(getCurrentDate(), FormatsDate.FORMAT_DATE_TIME)}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateOfTaskByConstant(getCurrentDatePlusDays(1), formatsDate.FORMAT_DATE_TIME)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateOfTaskByConstant(getCurrentDatePlusDays(1), FormatsDate.FORMAT_DATE_TIME)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -69,26 +82,27 @@ function createFormTemplate(points, nameDestinations) {
 }
 
 /** Представление для формы создания события */
-export default class CreatForm {
+export default class CreatForm extends AbstractView {
 
+  /** Модель точки */
+  #pointModel;
+
+  /**
+   * Конструктор
+   * @param pointModel Модель точки
+   */
   constructor(pointModel) {
-    this.pointModel = pointModel;
+    super();
+    this.#pointModel = pointModel;
   }
 
-  getTemplate() {
-    const points = this.pointModel.getPoints();
-    const nameDestinations = this.pointModel.getNameDestinations();
+  /**
+   * Получить шаблон формы
+   * @return {String}
+   */
+  get template() {
+    const points = this.#pointModel.points;
+    const nameDestinations = this.#pointModel.nameDestinations;
     return createFormTemplate(points, nameDestinations);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
