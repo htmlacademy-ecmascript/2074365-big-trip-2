@@ -16,10 +16,10 @@ const getChecked = (point, offer) => point.offers.includes(offer.id) ? 'checked'
  * @return {String}
  */
 const createTypeEventTemplate = (type) =>
-  (`<div class="event__type-item">
-        <input id="event-type-${type}-2" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
-        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-2">${capitalize(type)}</label>
-     </div>`);
+  `<div class="event__type-item">
+    <input id="event-type-${type}-2" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
+    <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-2">${capitalize(type)}</label>
+   </div>`;
 
 /**
  * Создает шаблон для предложений
@@ -32,14 +32,14 @@ const createTypeEventTemplate = (type) =>
 const createOffersTemplate = (offer, type, index, point) => {
   const checked = getChecked(point, offer);
   const {title, price} = offer;
-  return (`<div class="event__offer-selector">
+  return `<div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${index}" type="checkbox" name="event-offer-${type}" ${checked}>
-                <label class="event__offer-label" for="event-offer-${type}-${index}">
-                    <span class="event__offer-title">${title}</span>
-                        &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${price}</span>
-                </label>
-           </div>`);
+            <label class="event__offer-label" for="event-offer-${type}-${index}">
+                <span class="event__offer-title">${title}</span>
+                    &plus;&euro;&nbsp;
+                <span class="event__offer-price">${price}</span>
+            </label>
+          </div>`;
 };
 
 /**
@@ -47,7 +47,7 @@ const createOffersTemplate = (offer, type, index, point) => {
  * @param nameDestinations наименование назначения
  * @return {String}
  */
-const createDestinationTemplate = (nameDestinations) => (`<option value="${nameDestinations}">${nameDestinations}</option>`);
+const createDestinationTemplate = (nameDestinations) => `<option value="${nameDestinations}">${nameDestinations}</option>`;
 
 /**
  * Создать шаблон для редактирования события
@@ -58,7 +58,7 @@ const createDestinationTemplate = (nameDestinations) => (`<option value="${nameD
  * @param offers предложения
  * @return {String}
  */
-function createEditFormTemplate(point, points, destination, nameDestinations, offers) {
+const createEditFormTemplate = (point, points, destination, nameDestinations, offers) => {
   const {type, dateFrom, dateTo, basePrice} = point;
   const {name, description} = destination;
   const types = points.map((item) => item.type);
@@ -127,14 +127,12 @@ function createEditFormTemplate(point, points, destination, nameDestinations, of
               </form>
             </li>
          `);
-}
+};
 
 /** Представление для редактирования события */
 export default class EditForm extends AbstractView {
-
   /** Идентификатор точки маршрута */
   #id;
-
   /** Модель точки */
   #pointModel;
 

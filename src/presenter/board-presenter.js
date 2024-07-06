@@ -1,8 +1,8 @@
-import SortView from '../view/sort-view.js';
 import EventList from '../view/event-list-view.js';
 import EventView from '../view/event-view.js';
 import {render, replace} from '../framework/render.js';
 import EditForm from '../view/form-edit-view.js';
+import NoEventView from '../view/no-event-view.js';
 
 /** Презентер для отрисовки */
 export default class BoardPresenter {
@@ -38,20 +38,14 @@ export default class BoardPresenter {
    */
   #onEditFormClick(editForm, eventView) {
     replace(editForm, eventView);
-
     const button = editForm.element.querySelector('.event__rollup-btn');
-    const replaceAndRemoveListeners = () => {
+    const onReplaceAndRemoveListenersClick = () => {
       replace(eventView, editForm);
-      button.removeEventListener('click', replaceAndRemoveListeners);
-      document.removeEventListener('keydown', replaceAndRemoveListeners);
+      button.removeEventListener('click', onReplaceAndRemoveListenersClick);
+      document.removeEventListener('keydown', onReplaceAndRemoveListenersClick);
     };
-
-    button.addEventListener('click', replaceAndRemoveListeners, {once: true});
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' || event.code === 'Escape') {
-        replaceAndRemoveListeners();
-      }
-    }, {once: true});
+    button.addEventListener('click', onReplaceAndRemoveListenersClick);
+    document.addEventListener('keydown', onReplaceAndRemoveListenersClick);
   }
 
   /**
@@ -79,10 +73,13 @@ export default class BoardPresenter {
 
   /** Рендерит приложение */
   #renderApp() {
-    render(new SortView(), this.#container);
     render(this.#events, this.#container);
 
-    this.#pointModel.points.forEach((item) =>
-      render(this.#getEventView(item.id, this.#pointModel), this.#events.element));
+    if (this.#pointModel.points.length > 0) {
+      this.#pointModel.points.forEach((item) =>
+        render(this.#getEventView(item.id, this.#pointModel), this.#events.element));
+    } else {
+      render(new NoEventView(), this.#events.element);
+    }
   }
 }
