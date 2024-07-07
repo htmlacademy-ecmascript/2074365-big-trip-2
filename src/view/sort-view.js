@@ -1,43 +1,37 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
+/** Массив элементов сортировки */
+const sortingElements = [
+  {day: 'Day'},
+  {event: 'Event'},
+  {time: 'Time'},
+  {price: 'Price'},
+  {offer: 'Offers'}
+];
+
+/**
+ * Создает элемент сортировки
+ * @param obj объект элемента сортировки
+ * @param index индекс элемента
+ * @return {String}
+ */
+const createSort = (obj, index) =>
+  `<div class="trip-sort__item  trip-sort__item--${Object.keys(obj)}">
+    <input id="sort-${Object.keys(obj)}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${Object.keys(obj)}" ${index === 0 ? 'checked' : ''}>
+    <label class="trip-sort__btn" for="sort-${Object.keys(obj)}">${Object.values(obj)}</label>
+  </div>`;
+
 /**
  * Создать шаблон для сортировки
  * @return {String}
  */
-function createSortTemplate() {
-  return (`
-          <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-            <div class="trip-sort__item  trip-sort__item--day">
-              <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" checked>
-              <label class="trip-sort__btn" for="sort-day">Day</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--event">
-              <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" disabled>
-              <label class="trip-sort__btn" for="sort-event">Event</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--time">
-              <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time">
-              <label class="trip-sort__btn" for="sort-time">Time</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--price">
-              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price">
-              <label class="trip-sort__btn" for="sort-price">Price</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--offer">
-              <input id="sort-offer" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-offer" disabled>
-              <label class="trip-sort__btn" for="sort-offer">Offers</label>
-            </div>
-          </form>
-  `);
-}
+const createSortTemplate = () =>
+  `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+    ${sortingElements.map((item, index) => createSort(item, index)).join('')}
+   </form>`;
 
 /** Представление для компонента сортировки */
 export default class SortView extends AbstractView {
-
   /**
    * Получить шаблон сортировки
    * @return {String}

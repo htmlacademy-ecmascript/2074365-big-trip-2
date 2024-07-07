@@ -1,40 +1,37 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
+/** Массив элементов фильтра */
+const filteringElements = [
+  {everything: 'Everything'},
+  {future: 'Future'},
+  {present: 'Present'},
+  {past: 'Past'}
+];
+
+/**
+ * Создает элемент фильтра
+ * @param obj объект элемента фильтра
+ * @param index индекс элемента
+ * @return {String}
+ */
+const createFilter = (obj, index) =>
+  `<div class="trip-filters__filter">
+    <input id="filter-${Object.keys(obj)}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${Object.keys(obj)}" ${index === 0 ? 'checked' : ''}>
+    <label class="trip-filters__filter-label" for="filter-${Object.keys(obj)}">${Object.values(obj)}</label>
+   </div>`;
+
 /**
  * Создать шаблон для фильтра
  * @return {String}
  */
-function createFilterTemplate() {
-  return (`
-              <form class="trip-filters" action="#" method="get">
-                <div class="trip-filters__filter">
-                  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
-                  <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-                </div>
-
-                <div class="trip-filters__filter">
-                  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
-                  <label class="trip-filters__filter-label" for="filter-future">Future</label>
-                </div>
-
-                <div class="trip-filters__filter">
-                  <input id="filter-present" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="present">
-                  <label class="trip-filters__filter-label" for="filter-present">Present</label>
-                </div>
-
-                <div class="trip-filters__filter">
-                  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
-                  <label class="trip-filters__filter-label" for="filter-past">Past</label>
-                </div>
-
-                <button class="visually-hidden" type="submit">Accept filter</button>
-              </form>
-  `);
-}
+const createFilterTemplate = () =>
+  `<form class="trip-filters" action="#" method="get">
+    ${filteringElements.map((item, index) => createFilter(item, index)).join('')}
+    <button class="visually-hidden" type="submit">Accept filter</button>
+  </form>`;
 
 /** Представление для компонента фильтра */
 export default class FilterView extends AbstractView {
-
   /**
    * Получить шаблон фильтра
    * @return {String}

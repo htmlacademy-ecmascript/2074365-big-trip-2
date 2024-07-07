@@ -26,7 +26,7 @@ const createEventOffer = (offers) => {
  * @param timeDifference разница во времени
  * @return {String}
  */
-function createEventTemplate({point, destination, offers, timeDifference}) {
+const createEventTemplate = ({point, destination, offers, timeDifference}) => {
   const {type, dateFrom, dateTo, basePrice} = point;
   const {name} = destination;
   return (`
@@ -64,14 +64,12 @@ function createEventTemplate({point, destination, offers, timeDifference}) {
               </div>
             </li>
   `);
-}
+};
 
 /** Представление для события */
 export default class EventView extends AbstractView {
-
   /** Идентификатор точки маршрута */
   #id;
-
   /** Модель точки */
   #pointModel;
 
