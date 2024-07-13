@@ -2,6 +2,9 @@ import dayjs from 'dayjs';
 
 /**
  * Форматы дат
+ * @public
+ * @export
+ * @enum FormatsDate
  * @return {Enumerator}
  */
 export const FormatsDate = Object.freeze({
@@ -15,6 +18,9 @@ export const FormatsDate = Object.freeze({
 
 /**
  * Отформатировать дату по формату константы
+ * @public
+ * @export
+ * @function formatDateOfTaskByConstant
  * @param date дата
  * @param format формат даты
  * @return {String}
@@ -23,12 +29,18 @@ export const formatDateOfTaskByConstant = (date, format) => date ? dayjs(date).f
 
 /**
  * Получить текущую дату
+ * @public
+ * @export
+ * @function getCurrentDate
  * @return {Date}
  */
 export const getCurrentDate = () => new Date();
 
 /**
  * Получить дату и время с корректировкой на день
+ * @public
+ * @export
+ * @function getCurrentDatePlusDays
  * @param countDay количество дней
  * @return {Date}
  */
@@ -40,6 +52,9 @@ export const getCurrentDatePlusDays = (countDay) => {
 
 /**
  * Расчет разницы времени
+ * @public
+ * @export
+ * @function calculateTimeDifference
  * @param startDateString начало времени
  * @param endDateString конец времени
  * @return {String}

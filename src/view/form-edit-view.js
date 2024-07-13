@@ -1,6 +1,7 @@
 import {capitalize} from '../util/string-util.js';
 import {formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
 import AbstractView from '../framework/view/abstract-view.js';
+import {TypeEvent} from '../util/common.js';
 
 /**
  * Получить признак выбранного
@@ -51,6 +52,7 @@ const createDestinationTemplate = (nameDestinations) => `<option value="${nameDe
 
 /**
  * Создать шаблон для редактирования события
+ * @param id идентификатор
  * @param point точка маршрута
  * @param points точки маршрутов
  * @param destination назначение
@@ -58,12 +60,12 @@ const createDestinationTemplate = (nameDestinations) => `<option value="${nameDe
  * @param offers предложения
  * @return {String}
  */
-const createEditFormTemplate = (point, points, destination, nameDestinations, offers) => {
+const createEditFormTemplate = (id, point, points, destination, nameDestinations, offers) => {
   const {type, dateFrom, dateTo, basePrice} = point;
   const {name, description} = destination;
   const types = points.map((item) => item.type);
   return (`
-            <li class="trip-events__item">
+            <li class="trip-events__item" data-id="${id}" data-type-event="${TypeEvent.EDIT}">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
@@ -129,28 +131,42 @@ const createEditFormTemplate = (point, points, destination, nameDestinations, of
          `);
 };
 
-/** Представление для редактирования события */
-export default class EditForm extends AbstractView {
+/**
+ * Представление для редактирования события
+ * @class EditFormView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
+export default class EditFormView extends AbstractView {
   /** Идентификатор точки маршрута */
   #id;
-  /** Модель точки */
-  #pointModel;
+  /** точка */
+  #point;
+  /** Модель точек назначения */
+  #pointsModel;
 
   /**
    * Конструктор
+   *
    * @param id Идентификатор точки маршрута
-   * @param pointModel Модель точки
+   * @param point точка
+   * @param pointsModel Модель точек назначения
    * @param onFormSubmitClick Обработчик отправки формы
+   * @constructor
    */
-  constructor({id, pointModel, onFormSubmitClick}) {
+  constructor({id, point, pointsModel, onFormSubmitClick}) {
     super();
     this.#id = id;
-    this.#pointModel = pointModel;
+    this.#point = point;
+    this.#pointsModel = pointsModel;
     this.#handleFormSubmit(onFormSubmitClick);
   }
 
   /**
    * Обработчик слушетеля событий отправки формы
+   * @private
+   * @method handleFormSubmit
    * @param onFormSubmitClick Обработчик отправки формы
    */
   #handleFormSubmit(onFormSubmitClick) {
@@ -160,14 +176,21 @@ export default class EditForm extends AbstractView {
 
   /**
    * Получить шаблон редактирования формы
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {
-    const point = this.#pointModel.getPointById(this.#id);
-    const points = this.#pointModel.points;
-    const destination = this.#pointModel.getDestinationById(point.destination);
-    const nameDestinations = this.#pointModel.nameDestinations;
-    const offers = this.#pointModel.getOffersByPoint(point);
-    return createEditFormTemplate(point, points, destination, nameDestinations, offers);
+    const point = this.#point;
+    const points = this.#pointsModel.points;
+    const destination = this.#pointsModel.getDestinationById(point.destination);
+    const nameDestinations = this.#pointsModel.nameDestinations;
+    const offers = this.#pointsModel.getOffersByPoint(point);
+    return createEditFormTemplate(this.#id, point, points, destination, nameDestinations, offers);
+  }
+
+  /** Получить id */
+  get id() {
+    return this.#id;
   }
 }

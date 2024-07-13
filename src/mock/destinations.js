@@ -141,6 +141,9 @@ const mockDestinations = [
 
 /**
  * Получить моки описаний
+ * @public
+ * @export
+ * @function getMockDestinations
  * @return {Array}
  */
 export const getMockDestinations = () => mockDestinations;

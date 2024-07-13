@@ -8,18 +8,31 @@ const messagingElementsFilter = [
   {Future: 'There are no future events now'}
 ];
 
-/** Создать шаблон без событий */
-const createNoEventTemplate = () => `
+/**
+ * Создать шаблон без точек маршрута
+ * @function createNoPointTemplate
+ * @return {String}
+ */
+const createNoPointTemplate = () => `
     <p class="trip-events__msg">${Object.values(messagingElementsFilter[0])}</p>
 `;
 
-/** Представление для события */
-export default class NoEventView extends AbstractView {
+/**
+ * Представление для точек маршрута
+ * @class NoPointView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
+export default class NoPointView extends AbstractView {
+
   /**
-   * Получить шаблон без событий
+   * Получить шаблон без точек маршрута
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {
-    return createNoEventTemplate();
+    return createNoPointTemplate();
   }
 }
