@@ -1,17 +1,13 @@
-/**
- * Нуль
- * @type {Number}
- */
+/** Нуль */
 const ZERO = 0;
-
-/**
- * Один
- * @type {Number}
- */
+/** Один */
 const ONE = 1;
 
 /**
  * Получить случайное число
+ * @public
+ * @export
+ * @function getRandomNumber
  * @param min Минимальное число
  * @param max Максимальное число
  * @return {Number}
@@ -28,6 +24,9 @@ export const getRandomNumber = (min = ZERO, max = ONE) => {
 
 /**
  * Получить рандомный элемент из массива
+ * @public
+ * @export
+ * @function getRandomArrayElement
  * @param array Массив
  * @return {Array}
  */
@@ -37,9 +36,3 @@ export const getRandomArrayElement = (array) => {
   }
   return array[getRandomNumber(ZERO, array.length - ONE)];
 };
-
-/**
- * Признак избранного
- * @return {Boolean}
- */
-export const isFavorite = () => !!getRandomNumber(ZERO, ONE);

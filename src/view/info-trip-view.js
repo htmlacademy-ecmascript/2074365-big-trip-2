@@ -2,6 +2,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 /**
  * Создать шаблон для информации о поездке
+ * @function createInfoTripTemplate
  * @return {String}
  */
 const createInfoTripTemplate = () =>
@@ -15,10 +16,19 @@ const createInfoTripTemplate = () =>
     </p>
   </section>`;
 
-/** Представление для информации о поездке */
-export default class InfoTrip extends AbstractView {
+/**
+ * Представление для информации о поездке
+ * @class InfoTripView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
+export default class InfoTripView extends AbstractView {
+
   /**
    * Получить шаблон информации назначения
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {

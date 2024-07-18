@@ -4,6 +4,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 /**
  * Создает шаблон для типа события
+ * @function createTypeEventTemplate
  * @param type тип для шаблона
  * @return {String}
  */
@@ -15,6 +16,7 @@ const createTypeEventTemplate = (type) =>
 
 /**
  * Создает шаблон для места назначения
+ * @function createDestinationTemplate
  * @param nameDestinations наименование назначения
  * @return {String}
  */
@@ -22,6 +24,7 @@ const createDestinationTemplate = (nameDestinations) => `<option value="${nameDe
 
 /**
  * Создать шаблон, для создания события
+ * @function createFormTemplate
  * @param points точки маршрута
  * @param nameDestinations наименование назначения
  * @return {String}
@@ -81,27 +84,37 @@ const createFormTemplate = (points, nameDestinations) => {
   `);
 };
 
-/** Представление для формы создания события */
-export default class CreatForm extends AbstractView {
-  /** Модель точки */
-  #pointModel;
+/**
+ * Представление для формы создания события
+ * @class CreatFormView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
+export default class CreatFormView extends AbstractView {
+  /** Модель точек назначения */
+  #pointsModel;
 
   /**
    * Конструктор
-   * @param pointModel Модель точки
+   *
+   * @param pointsModel Модель точек назначения
+   * @constructor
    */
-  constructor(pointModel) {
+  constructor(pointsModel) {
     super();
-    this.#pointModel = pointModel;
+    this.#pointsModel = pointsModel;
   }
 
   /**
    * Получить шаблон формы
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {
-    const points = this.#pointModel.points;
-    const nameDestinations = this.#pointModel.nameDestinations;
+    const points = this.#pointsModel.points;
+    const nameDestinations = this.#pointsModel.nameDestinations;
     return createFormTemplate(points, nameDestinations);
   }
 }

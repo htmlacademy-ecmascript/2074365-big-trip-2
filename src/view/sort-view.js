@@ -11,6 +11,7 @@ const sortingElements = [
 
 /**
  * Создает элемент сортировки
+ * @function createSort
  * @param obj объект элемента сортировки
  * @param index индекс элемента
  * @return {String}
@@ -30,10 +31,19 @@ const createSortTemplate = () =>
     ${sortingElements.map((item, index) => createSort(item, index)).join('')}
    </form>`;
 
-/** Представление для компонента сортировки */
+/**
+ * Представление для компонента сортировки
+ * @class SortView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
 export default class SortView extends AbstractView {
+
   /**
    * Получить шаблон сортировки
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {

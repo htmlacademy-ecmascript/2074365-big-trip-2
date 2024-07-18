@@ -1,5 +1,8 @@
 /**
  * Преобразует первую букву в заглавную а остальные в нижний регистр
+ * @public
+ * @export
+ * @function capitalize
  * @param str Строка
  * @return {String}
  */

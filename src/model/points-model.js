@@ -3,28 +3,19 @@ import {getMockDestinations} from '../mock/destinations.js';
 import {getMockOffers} from '../mock/offers.js';
 
 /** Модель точек маршрута */
-export default class PointModel {
+export default class PointsModel {
 
-  /**
-   * Точки маршрута
-   * @type {Array}
-   */
+  /** Точки маршрута */
   #points = getPoints();
-
-  /**
-   * Точки назначения
-   * @type {Array}
-   */
+  /** Точки назначения */
   #destinations = getMockDestinations();
-
-  /**
-   * Предложения
-   * @type {Array}
-   */
+  /** Предложения */
   #offers = getMockOffers();
 
   /**
    * Получить точки
+   * @public
+   * @method points
    * @return {Array}
    */
   get points() {
@@ -33,6 +24,8 @@ export default class PointModel {
 
   /**
    * Получить наименование точек назначения
+   * @public
+   * @method nameDestinations
    * @return {Array}
    */
   get nameDestinations() {
@@ -41,6 +34,8 @@ export default class PointModel {
 
   /**
    * Получить точку по id
+   * @public
+   * @method getPointById
    * @param id Id точки маршрута
    * @return {Object}
    */
@@ -53,6 +48,8 @@ export default class PointModel {
 
   /**
    * Получить точку назначения по id
+   * @public
+   * @method getDestinationById
    * @param id Id точки маршрута
    * @return {Object}
    */
@@ -65,6 +62,8 @@ export default class PointModel {
 
   /**
    * Получить предлжения точки маршрута
+   * @public
+   * @method getOffersByPoint
    * @type {Object}
    * @return {Object}
    */

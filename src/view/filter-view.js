@@ -10,6 +10,7 @@ const filteringElements = [
 
 /**
  * Создает элемент фильтра
+ * @function createFilter
  * @param obj объект элемента фильтра
  * @param index индекс элемента
  * @return {String}
@@ -22,6 +23,7 @@ const createFilter = (obj, index) =>
 
 /**
  * Создать шаблон для фильтра
+ * @function createFilterTemplate
  * @return {String}
  */
 const createFilterTemplate = () =>
@@ -30,10 +32,18 @@ const createFilterTemplate = () =>
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
 
-/** Представление для компонента фильтра */
+/**
+ * Представление для компонента фильтра
+ * @class FilterView
+ * @extends AbstractView
+ * @export
+ * @default
+ */
 export default class FilterView extends AbstractView {
   /**
    * Получить шаблон фильтра
+   * @public
+   * @method template
    * @return {String}
    */
   get template() {

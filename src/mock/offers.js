@@ -192,6 +192,9 @@ const mockOffers = [
 
 /**
  * Получить моки предложений
+ * @public
+ * @export
+ * @function getMockOffers
  * @return {Array}
  */
 export const getMockOffers = () => mockOffers;
