@@ -1,6 +1,6 @@
 import PointsView from '../view/points-view.js';
 import {render, replace} from '../framework/render.js';
-import {StatusEvent, TypeEvent} from '../util/common.js';
+import {StatusEvent, TypeEvent} from '../util/constants-util.js';
 
 /**
  * Презентер точек

@@ -1,7 +1,7 @@
 import {calculateTimeDifference, formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
 import {capitalize} from '../util/string-util.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {StatusEvent, TypeEvent} from '../util/common.js';
+import {StatusEvent, TypeEvent} from '../util/constants-util.js';
 
 /**
  * Создать шаблон точки маршрута

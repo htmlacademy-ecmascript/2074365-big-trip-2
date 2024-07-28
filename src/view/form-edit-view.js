@@ -1,7 +1,7 @@
 import {capitalize} from '../util/string-util.js';
 import {formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {TypeEvent} from '../util/common.js';
+import {TypeEvent} from '../util/constants-util.js';
 
 /**
  * Получить признак выбранного

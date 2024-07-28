@@ -17,7 +17,7 @@ const sortingElements = [
  * @return {String}
  */
 const createSort = (obj, index) =>
-  `<div class="trip-sort__item  trip-sort__item--${Object.keys(obj)}">
+  `<div class="trip-sort__item  trip-sort__item--${Object.keys(obj)}" data-sort="${Object.keys(obj)}">
     <input id="sort-${Object.keys(obj)}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${Object.keys(obj)}" ${index === 0 ? 'checked' : ''}>
     <label class="trip-sort__btn" for="sort-${Object.keys(obj)}">${Object.values(obj)}</label>
   </div>`;

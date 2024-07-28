@@ -1,10 +1,13 @@
 import {render} from '../framework/render.js';
+import {renderPoints, sortPointsMap} from '../util/sort-util.js';
+import {TypeSorted} from '../util/constants-util.js';
 import NoPointView from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
 import InfoPresenter from './info-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import SortPresenter from './sort-presenter.js';
 import PointsPresenter from './points-presenter.js';
+
 
 /**
  * Главный презентер приложения
@@ -96,7 +99,11 @@ export default class AppPresenter {
    * @return void
    */
   #renderSort() {
-    new SortPresenter({container: this.#tripEvents}).render();
+    new SortPresenter({
+      container: this.#tripEvents,
+      pointsMap: this.#pointsMap,
+      pointsModel: this.#pointsModel
+    }).render();
   }
 
   /**
@@ -122,6 +129,7 @@ export default class AppPresenter {
       render(new NoPointView(), pointsElement);
       return;
     }
-    points.forEach((event) => render(event, pointsElement));
+    sortPointsMap(this.#pointsMap, TypeSorted.DATE_FORM);
+    renderPoints(this.#pointsMap, pointsElement);
   }
 }
