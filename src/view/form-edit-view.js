@@ -1,7 +1,7 @@
 import {capitalize} from '../util/string-util.js';
 import {formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
-import AbstractView from '../framework/view/abstract-view.js';
 import {TypeEvent} from '../util/constants-util.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /**
  * Получить признак выбранного
@@ -17,7 +17,7 @@ const getChecked = (point, offer) => point.offers.includes(offer.id) ? 'checked'
  * @return {String}
  */
 const createTypeEventTemplate = (type) =>
-  `<div class="event__type-item">
+  `<div class="event__type-item" data-type="${type}">
     <input id="event-type-${type}-2" class="event__type-input  visually-hidden" type="radio" name="event-type" value='${type}'>
     <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-2">${capitalize(type)}</label>
    </div>`;
@@ -45,25 +45,45 @@ const createOffersTemplate = (offer, type, index, point) => {
 
 /**
  * Создает шаблон для места назначения
- * @param nameDestinations наименование назначения
+ * @param destination точка назначения
  * @return {String}
  */
-const createDestinationTemplate = (nameDestinations) => `<option value="${nameDestinations}">${nameDestinations}</option>`;
+const createDestinationsTemplate = (destination) => {
+  const {id, name} = destination;
+  return `<option data-id="${id}" value="${name}">${name}</option>`;
+};
+
+/**
+ * Создать шаблон для описания точки назначения
+ * @param description Описание точки назначения
+ * @return {String}
+ */
+const createEventDescriptionTemplate = (description) =>
+  description ? `<p class="event__destination-description">${description}</p>` : '';
+
+/**
+ * Создать шаблон для отрисовки маршрутам картинок
+ * @param src URL картинки
+ * @param description Описание точки назначения
+ * @return {String}
+ */
+const createEventPhotoTemplate = (src, description) =>
+  `<img class="event__photo" src="${src}" alt="${description}">`;
 
 /**
  * Создать шаблон для редактирования события
  * @param id идентификатор
- * @param point точка маршрута
- * @param points точки маршрутов
- * @param destination назначение
- * @param nameDestinations наименование назначения
- * @param offers предложения
+ * @param state точка маршрута
+ * @param pointsModel Модель точек
  * @return {String}
  */
-const createEditFormTemplate = (id, point, points, destination, nameDestinations, offers) => {
-  const {type, dateFrom, dateTo, basePrice} = point;
+const createEditFormTemplate = (id, state, pointsModel) => {
+  const destinationId = state.destination;
+  const destination = pointsModel.getDestinationById(destinationId);
+  const destinations = pointsModel.destinations;
+  const offers = pointsModel.getOffersByPoint(state);
+  const {type, dateFrom, dateTo, basePrice} = state;
   const {name, description} = destination;
-  const types = points.map((item) => item.type);
   return (`
             <li class="trip-events__item" data-id="${id}" data-type-event="${TypeEvent.EDIT}">
               <form class="event event--edit" action="#" method="post">
@@ -71,14 +91,14 @@ const createEditFormTemplate = (id, point, points, destination, nameDestinations
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-2">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="${type}">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-2" type="checkbox">
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                        ${types.map((item) => createTypeEventTemplate(item)).join('')}
+                        ${pointsModel.points.map((item) => createTypeEventTemplate(item.type)).join('')}
                       </fieldset>
                     </div>
                   </div>
@@ -87,7 +107,7 @@ const createEditFormTemplate = (id, point, points, destination, nameDestinations
                     <label class="event__label  event__type-output" for="event-destination-2">${type}</label>
                     <input class="event__input  event__input--destination" id="event-destination-2" type="text" value="${name}" list="destination-list-2">
                     <datalist id="destination-list-2">
-                      ${nameDestinations.map((item) => createDestinationTemplate(item)).join('')}
+                      ${destinations.map((item) => createDestinationsTemplate(item)).join('')}
                     </datalist>
                   </div>
 
@@ -117,13 +137,18 @@ const createEditFormTemplate = (id, point, points, destination, nameDestinations
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                      ${offers.map((offer, index) => createOffersTemplate(offer, type, index, point)).join('')}
+                      ${offers.map((offer, index) => createOffersTemplate(offer, type, index, state)).join('')}
                     </div>
                   </section>
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${description}</p>
+                    ${createEventDescriptionTemplate(description)}
+                    ${destination?.pictures && destination?.pictures.length > 0 ? (`<div class="event__photos-container">
+                        <div class="event__photos-tape">
+                            ${destination.pictures.map((item) => createEventPhotoTemplate(item.src, item.description)).join('')}
+                        </div>
+                    </div>`) : ''}
                   </section>
                 </section>
               </form>
@@ -138,29 +163,74 @@ const createEditFormTemplate = (id, point, points, destination, nameDestinations
  * @export
  * @default
  */
-export default class EditFormView extends AbstractView {
+export default class EditFormView extends AbstractStatefulView {
   /** Идентификатор точки маршрута */
   #id;
-  /** точка */
-  #point;
   /** Модель точек назначения */
   #pointsModel;
+  /** Обработчик отправки формы */
+  #onFormSubmitClick;
+  /** Обработчик смены транспорта */
+  #onFormChangOfDestinationClick;
+  /** Обработчик смены пункта назначения */
+  #onFormInputOfDestinationClick;
 
   /**
    * Конструктор
    *
    * @param id Идентификатор точки маршрута
-   * @param point точка
    * @param pointsModel Модель точек назначения
    * @param onFormSubmitClick Обработчик отправки формы
+   * @param onFormChangOfDestinationClick Обработчик смены транспорта
+   * @param onFormInputOfDestinationClick Обработчик смены пункта назначения
    * @constructor
    */
-  constructor({id, point, pointsModel, onFormSubmitClick}) {
+  constructor({id, pointsModel, onFormSubmitClick, onFormChangOfDestinationClick, onFormInputOfDestinationClick}) {
     super();
     this.#id = id;
-    this.#point = point;
     this.#pointsModel = pointsModel;
-    this.#handleFormSubmit(onFormSubmitClick);
+    this.#onFormSubmitClick = onFormSubmitClick;
+    this.#onFormChangOfDestinationClick = onFormChangOfDestinationClick;
+    this.#onFormInputOfDestinationClick = onFormInputOfDestinationClick;
+    this._setState(EditFormView.parsePointToState({point: pointsModel.getPointById(id)}));
+    this.#initHandlers();
+  }
+
+  /**
+   * Получить шаблон редактирования формы
+   * @public
+   * @method template
+   * @return {String}
+   */
+  get template() {
+    const state = EditFormView.parseStateToPoint(this._state);
+    return createEditFormTemplate(this.#id, state, this.#pointsModel);
+  }
+
+  /** Получить id */
+  get id() {
+    return this.#id;
+  }
+
+  /** Парсит точку маршрута в объект для состояния */
+  static parsePointToState = ({point}) => ({point});
+
+  /** Парсит объект состояния в точку маршрута */
+  static parseStateToPoint = (state) => state.point;
+
+  _restoreHandlers() {
+    this.#initHandlers();
+  }
+
+  /**
+   * Инициализация обработчиков
+   * @private
+   * @method initHandlers
+   */
+  #initHandlers() {
+    this.#handleFormSubmit(this.#onFormSubmitClick);
+    this.#handleFormChangOfDestination(this.#onFormChangOfDestinationClick);
+    this.#handlerFormInputOfDestination(this.#onFormInputOfDestinationClick);
   }
 
   /**
@@ -175,22 +245,24 @@ export default class EditFormView extends AbstractView {
   }
 
   /**
-   * Получить шаблон редактирования формы
-   * @public
-   * @method template
-   * @return {String}
+   * Обработчик слушетеля событий смены транспорта
+   * @private
+   * @method handleFormChangOfDestination
+   * @param onFormChangOfDestinationClick Обработчик слушетеля событий
    */
-  get template() {
-    const point = this.#point;
-    const points = this.#pointsModel.points;
-    const destination = this.#pointsModel.getDestinationById(point.destination);
-    const nameDestinations = this.#pointsModel.nameDestinations;
-    const offers = this.#pointsModel.getOffersByPoint(point);
-    return createEditFormTemplate(this.#id, point, points, destination, nameDestinations, offers);
+  #handleFormChangOfDestination(onFormChangOfDestinationClick) {
+    const typeBtn = this.element.querySelector('.event__type-list');
+    typeBtn.addEventListener('click', onFormChangOfDestinationClick.bind(this, EditFormView.parseStateToPoint(this._state), this));
   }
 
-  /** Получить id */
-  get id() {
-    return this.#id;
+  /**
+   * Обработчик слушетеля событий смены пункта назначения
+   * @private
+   * @method handlerFormInputOfDestination
+   * @param onFormInputOfDestinationClick Обработчик слушетеля событий
+   */
+  #handlerFormInputOfDestination(onFormInputOfDestinationClick) {
+    const eventInputDestination = this.element.querySelector('.event__input--destination');
+    eventInputDestination.addEventListener('change', onFormInputOfDestinationClick.bind(this, EditFormView.parseStateToPoint(this._state), this));
   }
 }

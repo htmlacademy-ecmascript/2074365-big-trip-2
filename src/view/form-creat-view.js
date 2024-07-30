@@ -1,6 +1,6 @@
 import {capitalize} from '../util/string-util.js';
 import {formatDateOfTaskByConstant, FormatsDate, getCurrentDate, getCurrentDatePlusDays} from '../util/date-util.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /**
  * Создает шаблон для типа события
@@ -91,7 +91,7 @@ const createFormTemplate = (points, nameDestinations) => {
  * @export
  * @default
  */
-export default class CreatFormView extends AbstractView {
+export default class CreatFormView extends AbstractStatefulView {
   /** Модель точек назначения */
   #pointsModel;
 
@@ -116,5 +116,9 @@ export default class CreatFormView extends AbstractView {
     const points = this.#pointsModel.points;
     const nameDestinations = this.#pointsModel.nameDestinations;
     return createFormTemplate(points, nameDestinations);
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

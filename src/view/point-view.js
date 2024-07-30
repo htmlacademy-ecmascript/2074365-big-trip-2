@@ -1,7 +1,7 @@
 import {calculateTimeDifference, formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
 import {capitalize} from '../util/string-util.js';
-import AbstractView from '../framework/view/abstract-view.js';
 import {StatusEvent, TypeEvent} from '../util/constants-util.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /**
  * Создать шаблон точки маршрута
@@ -77,7 +77,7 @@ const createPointTemplate = ({id, point, destination, offers, timeDifference}) =
  * @export
  * @default
  */
-export default class PointView extends AbstractView {
+export default class PointView extends AbstractStatefulView {
   /** Идентификатор точки маршрута */
   #id;
   /** Точка */
@@ -94,15 +94,13 @@ export default class PointView extends AbstractView {
    * @param id Идентификатор точки маршрута
    * @param point точка
    * @param pointsModel Модель точек назначения
-   * @param editForm экземпляр редактирования формы
    * @constructor
    */
-  constructor({id, point, pointsModel, editForm}) {
+  constructor({id, point, pointsModel}) {
     super();
     this.#id = id;
     this.#point = point;
     this.#pointsModel = pointsModel;
-    this.#editForm = editForm;
   }
 
   /**
@@ -137,5 +135,14 @@ export default class PointView extends AbstractView {
   /** Получить форму редактирования точки */
   get editForm() {
     return this.#editForm;
+  }
+
+  /** Инициализировать поле экземпляром формы редактирования */
+  set editForm(editForm) {
+    this.#editForm = editForm;
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

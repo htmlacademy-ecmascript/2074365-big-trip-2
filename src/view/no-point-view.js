@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /** Массив сообщений для элемента фильтра */
 const messagingElementsFilter = [
@@ -24,7 +24,7 @@ const createNoPointTemplate = () => `
  * @export
  * @default
  */
-export default class NoPointView extends AbstractView {
+export default class NoPointView extends AbstractStatefulView {
 
   /**
    * Получить шаблон без точек маршрута
@@ -34,5 +34,9 @@ export default class NoPointView extends AbstractView {
    */
   get template() {
     return createNoPointTemplate();
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

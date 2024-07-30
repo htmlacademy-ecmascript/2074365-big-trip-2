@@ -1,6 +1,9 @@
-import PointsView from '../view/points-view.js';
 import {render, replace} from '../framework/render.js';
 import {StatusEvent, TypeEvent} from '../util/constants-util.js';
+import PointView from '../view/point-view.js';
+import EditFormView from '../view/form-edit-view.js';
+import PointsView from '../view/points-view.js';
+
 
 /**
  * Презентер точек
@@ -11,19 +14,124 @@ import {StatusEvent, TypeEvent} from '../util/constants-util.js';
 export default class PointsPresenter {
   /** Контейнер элемента */
   #container;
+  /** Модель точек назначения */
+  #pointsModel;
   /** Мапа точек маршрута */
-  #pointsMap;
+  #pointsMap = new Map();
+
 
   /**
    * Конструктор
    *
    * @param container Контейнер элемента
-   * @param pointsMap Мапа точек маршрута
+   * @param pointsModel Модель точек назначения
    * @constructor
    */
-  constructor({container, pointsMap}) {
+  constructor({container, pointsModel}) {
     this.#container = container;
-    this.#pointsMap = pointsMap;
+    this.#pointsModel = pointsModel;
+  }
+
+  /** Добавляет точки маршрута в мапу */
+  get pointsMap() {
+    if (this.#pointsModel?.points?.length > 0) {
+      this.#pointsModel.points.forEach((point) => {
+        const eventView = this.#getEventView(point.id, point, this.#pointsModel);
+        this.#pointsMap.set(point.id, eventView);
+      });
+    }
+    return this.#pointsMap;
+  }
+
+  /**
+   * Получить представления точек маршрута
+   * @public
+   * @method pointsView
+   * @return {PointsView}
+   */
+  get pointsView() {
+    const pointsView = new PointsView({
+      onSelectFavoriteClick: this.#onSelectFavoriteClick.bind(this),
+      onEditFormClick: this.#onEditFormClick.bind(this)
+    });
+    this.#render(pointsView);
+    return pointsView;
+  }
+
+  /**
+   * Обработчик отправки формы
+   * @private
+   * @method onFormSubmitClick
+   * @return void
+   * @param event событие на элементе формы
+   */
+  #onFormSubmitClick(event) {
+    event.preventDefault();
+  }
+
+  /**
+   * Обработчик смены транспорта
+   * @private
+   * @method onFormChangOfDestinationClick
+   * @return void
+   */
+  #onFormChangOfDestinationClick(state, editForm, event) {
+    if (event?.target?.closest('.event__type-item')) {
+      const type = event.target.closest('.event__type-item');
+      if (type?.dataset?.type) {
+        state.type = type.dataset.type;
+        editForm.updateElement(state);
+      }
+    }
+  }
+
+  /**
+   * Обработчик смены пункта назначения
+   * @private
+   * @method onFormInputOfDestinationClick
+   * @return void
+   */
+  #onFormInputOfDestinationClick(state, editForm, event) {
+    const optionValue = event?.target?.value;
+    if (!optionValue) {
+      return;
+    }
+
+    const destinationList = document.querySelector('#destination-list-2');
+    const selectedOption = Array.from(destinationList.querySelectorAll('option')).find(
+      (option) => option.value === optionValue
+    );
+
+    if (selectedOption?.dataset?.id) {
+      state.destination = selectedOption.dataset.id;
+      editForm.updateElement(state);
+    }
+  }
+
+  /**
+   * Получить экземпляр точки маршрута
+   * @public
+   * @method getEventView
+   * @param id идентификатор
+   * @param point точка
+   * @param pointsModel модель точек назначения
+   * @return {PointView}
+   */
+  #getEventView(id, point, pointsModel) {
+    const pointView = new PointView({
+      id: id,
+      point: point,
+      pointsModel: pointsModel,
+    });
+
+    pointView.editForm = new EditFormView({
+      id: id,
+      pointsModel: pointsModel,
+      onFormSubmitClick: this.#onFormSubmitClick,
+      onFormChangOfDestinationClick: this.#onFormChangOfDestinationClick,
+      onFormInputOfDestinationClick: this.#onFormInputOfDestinationClick
+    });
+    return pointView;
   }
 
   /**
@@ -63,7 +171,7 @@ export default class PointsPresenter {
       document.removeEventListener('keydown', this.onReferenceToHandlerClick);
     }
     this.onReferenceToHandlerClick = this.#onEscKeyEditFormClose.bind(this, pointView);
-    document.addEventListener('keydown', this.onReferenceToHandlerClick, {once: true});
+    document.addEventListener('keydown', this.onReferenceToHandlerClick);
     return this.onReferenceToHandlerClick;
   }
 
@@ -72,10 +180,14 @@ export default class PointsPresenter {
    * @private
    * @method onEscKeyEditFormClose
    * @param pointView экземпляр точки маршрута
+   * @param event событие
    * @return void
    */
-  #onEscKeyEditFormClose(pointView) {
-    this.#replaceEditFormViewToPointView(pointView);
+  #onEscKeyEditFormClose(pointView, event) {
+    if (event?.key && event.key === 'Escape') {
+      this.#replaceEditFormViewToPointView(pointView);
+      document.removeEventListener('keydown', this.onReferenceToHandlerClick);
+    }
   }
 
   /**
@@ -160,20 +272,5 @@ export default class PointsPresenter {
   /** Рендерит блок для точек маршрутов */
   #render(pointsView) {
     render(pointsView, this.#container);
-  }
-
-  /**
-   * Получить представления точек маршрута
-   * @public
-   * @method pointsView
-   * @return {PointsView}
-   */
-  get pointsView() {
-    const pointsView = new PointsView({
-      onSelectFavoriteClick: this.#onSelectFavoriteClick.bind(this),
-      onEditFormClick: this.#onEditFormClick.bind(this)
-    });
-    this.#render(pointsView);
-    return pointsView;
   }
 }

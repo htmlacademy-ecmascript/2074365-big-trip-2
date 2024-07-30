@@ -65,7 +65,7 @@ const cities = [
  * @return {Array}
  */
 const getPictures = () => {
-  const count = getRandomNumber(1, 5);
+  const count = getRandomNumber(1, 15);
   const pictures = [];
   for (let i = 0; i < count; i++) {
     pictures.push(
@@ -93,7 +93,7 @@ const mockDestinations = [
     id: 'd560033f-446e-4f95-9041-e895ffbc58bf',
     description: getRandomArrayElement(descriptions),
     name: getRandomArrayElement(cities),
-    pictures: getPictures()
+    pictures: []
   },
   {
     id: '9f2e4543-853b-478c-8b1e-59ffaa69f0fe',

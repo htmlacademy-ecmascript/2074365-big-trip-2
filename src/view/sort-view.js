@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /** Массив элементов сортировки */
 const sortingElements = [
@@ -38,7 +38,7 @@ const createSortTemplate = () =>
  * @export
  * @default
  */
-export default class SortView extends AbstractView {
+export default class SortView extends AbstractStatefulView {
 
   /**
    * Получить шаблон сортировки
@@ -48,5 +48,9 @@ export default class SortView extends AbstractView {
    */
   get template() {
     return createSortTemplate();
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /**
  * Создать шаблон для списка точек маршрута
@@ -15,7 +15,7 @@ const createPointsTemplate = () => `
  * @export
  * @default
  */
-export default class PointsView extends AbstractView {
+export default class PointsView extends AbstractStatefulView {
   /**
    * Конструктор
    * @param onSelectFavoriteClick Обработчик события выбора в избранные
@@ -57,5 +57,9 @@ export default class PointsView extends AbstractView {
    */
   get template() {
     return createPointsTemplate();
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /**
  * Создать шаблон для информации о поездке
@@ -23,7 +23,7 @@ const createInfoTripTemplate = () =>
  * @export
  * @default
  */
-export default class InfoTripView extends AbstractView {
+export default class InfoTripView extends AbstractStatefulView {
 
   /**
    * Получить шаблон информации назначения
@@ -33,5 +33,9 @@ export default class InfoTripView extends AbstractView {
    */
   get template() {
     return createInfoTripTemplate();
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }
