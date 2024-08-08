@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 /** Массив элементов фильтра */
 const filteringElements = [
@@ -39,7 +39,7 @@ const createFilterTemplate = () =>
  * @export
  * @default
  */
-export default class FilterView extends AbstractView {
+export default class FilterView extends AbstractStatefulView {
   /**
    * Получить шаблон фильтра
    * @public
@@ -48,5 +48,9 @@ export default class FilterView extends AbstractView {
    */
   get template() {
     return createFilterTemplate();
+  }
+
+  _restoreHandlers() {
+    return undefined;
   }
 }

@@ -23,6 +23,26 @@ export default class PointsModel {
   }
 
   /**
+   * Получить типы точек маршрутов
+   * @public
+   * @method typePoints
+   * @return {Array}
+   */
+  get typePoints() {
+    return this.#points.filter((data) => data !== null).map((item) => item.type);
+  }
+
+  /**
+   * Получить точки назначения
+   * @public
+   * @method destinations
+   * @return {Array}
+   */
+  get destinations() {
+    return this.#destinations;
+  }
+
+  /**
    * Получить наименование точек назначения
    * @public
    * @method nameDestinations

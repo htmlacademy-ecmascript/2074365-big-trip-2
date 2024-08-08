@@ -2,7 +2,6 @@ import {render} from '../framework/render.js';
 import {renderPoints, sortPointsMap} from '../util/sort-util.js';
 import {TypeSorted} from '../util/constants-util.js';
 import NoPointView from '../view/no-point-view.js';
-import PointPresenter from './point-presenter.js';
 import InfoPresenter from './info-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import SortPresenter from './sort-presenter.js';
@@ -17,7 +16,6 @@ import PointsPresenter from './points-presenter.js';
  * @export
  */
 export default class AppPresenter {
-
   /** Контейнер элемента */
   #tripEvents;
   /** Блок точки маршрута */
@@ -27,8 +25,6 @@ export default class AppPresenter {
   /** Модель точек назначения */
   #pointsModel;
 
-  /** Мапа точек маршрута */
-  #pointsMap = new Map();
 
   /**
    * Конструктор
@@ -54,22 +50,11 @@ export default class AppPresenter {
    * @return void
    */
   init() {
-    this.#addPointsToMap();
+    const pointsView = this.#getPointsView();
     this.#renderTripInfo();
     this.#renderFilter();
-    this.#renderSort();
-    this.#renderTripEvent();
-  }
-
-  /** Добавляет точки маршрута в мапу */
-  #addPointsToMap() {
-    const pointPresenter = new PointPresenter();
-    if (this.#pointsModel?.points?.length > 0) {
-      this.#pointsModel.points.forEach((point) => {
-        const eventView = pointPresenter.getEventView(point.id, point, this.#pointsModel);
-        this.#pointsMap.set(point.id, eventView);
-      });
-    }
+    this.#renderSort(pointsView);
+    this.#renderTripEvent(pointsView);
   }
 
   /**
@@ -96,12 +81,14 @@ export default class AppPresenter {
    * Рендерит сортировку
    * @private
    * @method renderSort
+   * @param pointsView Экземпляр точки маршрута
    * @return void
    */
-  #renderSort() {
+  #renderSort(pointsView) {
+    const pointsMap = pointsView.pointsMap;
     new SortPresenter({
       container: this.#tripEvents,
-      pointsMap: this.#pointsMap,
+      pointsMap: pointsMap,
       pointsModel: this.#pointsModel
     }).render();
   }
@@ -110,26 +97,27 @@ export default class AppPresenter {
    * Получить блок для точек маршрутов
    * @private
    * @method getPointsView
-   * @return {PointsView}
+   * @return {PointsPresenter}
    */
   #getPointsView() {
-    return new PointsPresenter({container: this.#tripEvents, pointsMap: this.#pointsMap}).pointsView;
+    return new PointsPresenter({container: this.#tripEvents, pointsModel: this.#pointsModel});
   }
 
   /**
    * Рендерит точки маршрута
    * @private
    * @method renderTripEvent
+   * @param pointsView Экземпляр точки маршрута
    * @return void
    */
-  #renderTripEvent() {
-    const pointsElement = this.#getPointsView().element;
-    const points = this.#pointsMap;
-    if (points.size === 0) {
+  #renderTripEvent(pointsView) {
+    const pointsElement = pointsView.pointsView.element;
+    const pointsMap = pointsView.pointsMap;
+    if (pointsMap.size === 0) {
       render(new NoPointView(), pointsElement);
       return;
     }
-    sortPointsMap(this.#pointsMap, TypeSorted.DATE_FORM);
-    renderPoints(this.#pointsMap, pointsElement);
+    sortPointsMap(pointsMap, TypeSorted.DATE_FORM);
+    renderPoints(pointsMap, pointsElement);
   }
 }
