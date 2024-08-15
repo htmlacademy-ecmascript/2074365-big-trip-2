@@ -41,7 +41,27 @@ export const TypeSorted = Object.freeze({
   OFFERS: 'offers'
 });
 
+/**
+ * Порядок сортировки
+ * @public
+ * @export
+ * @enum SortOrder
+ * @return {Enumerator}
+ */
 export const SortOrder = Object.freeze({
   DESC: 'desc',
   ASC: 'asc'
+});
+
+/**
+ * Параметры средства выбора дат
+ * @public
+ * @export
+ * @enum DatePicker
+ * @return {Enumerator}
+ */
+export const DatePicker = Object.freeze({
+  MIN_DATE: 'minDate',
+  MAX_DATE: 'maxDate',
+  DATE_FORMAT: 'd/m/Y H:i'
 });

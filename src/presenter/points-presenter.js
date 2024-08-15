@@ -203,6 +203,7 @@ export default class PointsPresenter {
       if (StatusEvent.EDIT === pointStatus) {
         isCloseEdits = true;
         eventViewItem.element.dataset.status = StatusEvent.DEFAULT;
+        eventViewItem.editForm.reset(eventViewItem);
         replace(eventViewItem, eventViewItem.editForm);
       }
     });
@@ -231,6 +232,7 @@ export default class PointsPresenter {
   #replaceEditFormViewToPointView(pointView) {
     if (pointView) {
       pointView.element.dataset.status = StatusEvent.DEFAULT;
+      pointView.editForm.reset(pointView);
       replace(pointView, pointView.editForm);
     }
   }
