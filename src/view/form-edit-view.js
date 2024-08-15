@@ -1,7 +1,10 @@
 import {capitalize} from '../util/string-util.js';
 import {formatDateOfTaskByConstant, FormatsDate} from '../util/date-util.js';
-import {TypeEvent} from '../util/constants-util.js';
+import {DatePicker, TypeEvent} from '../util/constants-util.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/airbnb.css';
+
 
 /**
  * Получить признак выбранного
@@ -174,6 +177,11 @@ export default class EditFormView extends AbstractStatefulView {
   #onFormChangOfDestinationClick;
   /** Обработчик смены пункта назначения */
   #onFormInputOfDestinationClick;
+  /** Средство выбора даты "от" */
+  #datePickerFrom;
+  /** Средство выбора даты "до" */
+  #datePickerTo;
+
 
   /**
    * Конструктор
@@ -212,6 +220,11 @@ export default class EditFormView extends AbstractStatefulView {
     return this.#id;
   }
 
+  /** Сбросить значения в состоянии до дефолтных */
+  reset(point) {
+    this.updateElement(EditFormView.parsePointToState(point));
+  }
+
   /** Парсит точку маршрута в объект для состояния */
   static parsePointToState = ({point}) => ({point});
 
@@ -231,6 +244,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.#handleFormSubmit(this.#onFormSubmitClick);
     this.#handleFormChangOfDestination(this.#onFormChangOfDestinationClick);
     this.#handlerFormInputOfDestination(this.#onFormInputOfDestinationClick);
+    this.#setDatePickers();
   }
 
   /**
@@ -265,4 +279,60 @@ export default class EditFormView extends AbstractStatefulView {
     const eventInputDestination = this.element.querySelector('.event__input--destination');
     eventInputDestination.addEventListener('change', onFormInputOfDestinationClick.bind(this, EditFormView.parseStateToPoint(this._state), this));
   }
+
+  /** Удаляет средство выбора даты при смене View */
+  removeElement = () => {
+    super.removeElement();
+    if (this.#datePickerFrom) {
+      this.#datePickerFrom.destroy();
+      this.#datePickerFrom = null;
+    }
+    if (this.#datePickerTo) {
+      this.#datePickerTo.destroy();
+      this.#datePickerTo = null;
+    }
+  };
+
+  /** Обработчик события смены даты в календаре "от" */
+  #onDateFromCloseClick = ([userDate]) => {
+    this._setState({point: {...this._state.point, dateFrom: userDate}});
+    this.#datePickerTo.set(DatePicker.MIN_DATE, this._state.point.dateFrom);
+  };
+
+  /** Обработчик события смены даты в календаре "до" */
+  #onDateToCloseClick = ([userDate]) => {
+    this._setState({point: {...this._state.point, dateTo: userDate}});
+    this.#datePickerFrom.set(DatePicker.MAX_DATE, this._state.point.dateTo);
+  };
+
+  /** Установить параметры для Api выбора дат "Календарь" */
+  #setDatePickers = () => {
+    const [dateFromElement, dateToElement] = this.element.querySelectorAll('.event__input--time');
+    const commonConfigs = {
+      dateFormat: DatePicker.DATE_FORMAT,
+      enableTime: true,
+      locale: {firstDayOfWeek: 1},
+      'time_24hr': true
+    };
+
+    this.#datePickerFrom = flatpickr(
+      dateFromElement,
+      {
+        ...commonConfigs,
+        defaultDate: this._state.point.dateFrom,
+        onClose: this.#onDateFromCloseClick,
+        maxDate: this._state.point.dateTo
+      }
+    );
+
+    this.#datePickerTo = flatpickr(
+      dateToElement,
+      {
+        ...commonConfigs,
+        defaultDate: this._state.point.dateTo,
+        onClose: this.#onDateToCloseClick,
+        minDate: this._state.point.dateFrom
+      }
+    );
+  };
 }
