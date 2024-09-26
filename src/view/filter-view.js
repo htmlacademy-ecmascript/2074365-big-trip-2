@@ -1,56 +1,110 @@
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-
-/** Массив элементов фильтра */
-const filteringElements = [
-  {everything: 'Everything'},
-  {future: 'Future'},
-  {present: 'Present'},
-  {past: 'Past'}
-];
+import AbstractView from '../framework/view/abstract-view.js';
 
 /**
- * Создает элемент фильтра
- * @function createFilter
- * @param obj объект элемента фильтра
- * @param index индекс элемента
- * @return {String}
+ * Создает HTML-шаблон для одного элемента фильтра
+ *
+ * @param filter - Объект фильтра, содержащий информацию о фильтре
+ * @param currentFilterType - Текущий выбранный тип фильтра
+ *
+ * @property type - Тип фильтра
+ * @property count - Количество элементов, соответствующих фильтру
+ *
+ * @returns {string} - HTML-шаблон элемента фильтра
  */
-const createFilter = (obj, index) =>
-  `<div class="trip-filters__filter">
-    <input id="filter-${Object.keys(obj)}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${Object.keys(obj)}" ${index === 0 ? 'checked' : ''}>
-    <label class="trip-filters__filter-label" for="filter-${Object.keys(obj)}">${Object.values(obj)}</label>
-   </div>`;
+function createFilterItemTemplate(filter, currentFilterType) {
+  const {type, count} = filter;
+
+  return (
+    `<div class="trip-filters__filter">
+      <input id="filter-${type}"
+        class="trip-filters__filter-input  visually-hidden"
+        type="radio"
+        name="trip-filter"
+        value="${type}"
+        ${type === currentFilterType ? 'checked' : ''}
+        ${count === 0 ? 'disabled' : ''}
+        >
+      <label class="trip-filters__filter-label" for="filter-${type}">${type}</label>
+    </div>`
+  );
+}
 
 /**
- * Создать шаблон для фильтра
- * @function createFilterTemplate
- * @return {String}
+ * Создает HTML-шаблон для блока фильтров
+ *
+ * @param filterItems - Список элементов фильтров
+ * @param currentFilterType - Текущий выбранный тип фильтра
+ *
+ * @returns {string} - HTML-шаблон блока фильтров
  */
-const createFilterTemplate = () =>
-  `<form class="trip-filters" action="#" method="get">
-    ${filteringElements.map((item, index) => createFilter(item, index)).join('')}
-    <button class="visually-hidden" type="submit">Accept filter</button>
-  </form>`;
+function createFilterTemplate(filterItems, currentFilterType) {
+  const filterItemsTemplate = filterItems
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
+    .join('');
+
+  return (
+    `<form class="trip-filters" action="#" method="get">
+      ${filterItemsTemplate}
+      <button class="visually-hidden" type="submit">Accept filter</button>
+    </form>`
+  );
+}
 
 /**
- * Представление для компонента фильтра
- * @class FilterView
- * @extends AbstractView
- * @export
- * @default
+ * Представление для блока фильтров
+ * @extends {AbstractView}
  */
-export default class FilterView extends AbstractStatefulView {
+export default class FilterView extends AbstractView {
+
   /**
-   * Получить шаблон фильтра
-   * @public
-   * @method template
-   * @return {String}
+   * Список элементов фильтров
+   * @private
+   */
+  #filters = null;
+
+  /**
+   * Текущий выбранный тип фильтра
+   * @private
+   */
+  #currentFilter = null;
+
+  /**
+   * Обработчик изменения типа фильтра
+   * @private
+   */
+  #handleFilterTypeChange = null;
+
+  /**
+   * Инициализирует представление
+   *
+   * @param filters - Список элементов фильтров
+   * @param currentFilterType - Текущий выбранный тип фильтра
+   * @param onFilterTypeChange - Обработчик изменения типа фильтра
+   */
+  constructor({filters, currentFilterType, onFilterTypeChange}) {
+    super();
+    this.#filters = filters;
+    this.#currentFilter = currentFilterType;
+    this.#handleFilterTypeChange = onFilterTypeChange;
+    this.element.addEventListener('change', this.#filterTypeChangeHandler);
+  }
+
+  /**
+   * Возвращает HTML-шаблон представления
+   * @returns {string} - HTML-шаблон представления
    */
   get template() {
-    return createFilterTemplate();
+    return createFilterTemplate(this.#filters, this.#currentFilter);
   }
 
-  _restoreHandlers() {
-    return undefined;
-  }
+  /**
+   * Обработчик изменения типа фильтра
+   *
+   * @param {Event} evt - Событие изменения типа фильтра
+   * @private
+   */
+  #filterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFilterTypeChange(evt.target.value);
+  };
 }
