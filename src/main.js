@@ -4,6 +4,11 @@ import EventsPresenter from './presenter/events-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import NewEventButtonView from './view/new-event-button-view.js';
 import {render} from './framework/render.js';
+import EventsApiService from './service/events-api-service.js';
+import {generateUUID} from './util/common.js';
+
+const AUTHORIZATION = `Basic ${generateUUID()}`;
+const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 /**
  * Элемент заголовка сайта
@@ -35,11 +40,13 @@ const pageMain = document.querySelector('.page-main');
  */
 const tripEvents = pageMain.querySelector('.trip-events');
 
-/*
-* Модель событий
-* @type {EventsModel}
-*/
-const eventsModel = new EventsModel();
+/**
+ * Модель событий
+ * @type {EventsModel}
+ */
+const eventsModel = new EventsModel({
+  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
+});
 
 /**
  * Модель фильтров
@@ -82,19 +89,30 @@ const newEventButtonComponent = new NewEventButtonView({
  */
 function handleNewEventFormClose() {
   newEventButtonComponent.element.disabled = false;
+  eventsPresenter.rerenderNoEventsComponent();
 }
 
 /** Обработчик клика по кнопке добавления нового события */
 function handleNewEventButtonClick() {
-  eventsPresenter.createEvent();
+  eventsPresenter.createEvent(handleNewEventFormClose);
   newEventButtonComponent.element.disabled = true;
 }
-
-/** Рендеринг компонента кнопки добавления нового события */
-render(newEventButtonComponent, tripMain);
 
 /** Инициализация презентера фильтров */
 filterPresenter.init();
 
 /** Инициализация презентера событий */
 eventsPresenter.init();
+
+eventsModel.init()
+  .finally(() => {
+
+    /**
+     * Рендерит компонент кнопки добавления нового события
+     * Если список предложений пуст, отключает кнопку добавления события
+     */
+    render(newEventButtonComponent, tripMain);
+    if (eventsModel.offers.length === 0) {
+      newEventButtonComponent.element.disabled = true;
+    }
+  });

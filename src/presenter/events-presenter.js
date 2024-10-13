@@ -8,6 +8,18 @@ import {sortEventsByDay, sortEventsByDuration, sortEventsByPrice} from '../util/
 import {filter} from '../util/filter-utils.js';
 import TripInfoView from '../view/trip-info-view.js';
 import NewEventPresenter from './new-event-presenter.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import LoadingView from '../view/loading-view.js';
+import PointsLoadErrorView from '../view/points-load-error-view.js';
+
+/**
+ * Константы, определяющие временные ограничения
+ * @enum {number}
+ */
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 /** Презентер для представления событий */
 export default class EventsPresenter {
@@ -17,6 +29,12 @@ export default class EventsPresenter {
    * @private
    */
   #eventsContainer = null;
+
+  /**
+   * Контейнер для заголовка
+   * @private
+   */
+  #headerContainer = null;
 
   /**
    * Модель для данных событий
@@ -55,6 +73,20 @@ export default class EventsPresenter {
   #noEventsComponent = null;
 
   /**
+   * @type {LoadingView}
+   * @description Компонент загрузки, отображаемый во время загрузки данных
+   * @private
+   */
+  #loadingComponent = new LoadingView();
+
+  /**
+   * @type {PointsLoadErrorView}
+   * @description Компонент ошибки загрузки точек, отображаемый при возникновении ошибки
+   * @private
+   */
+  #pointsLoadErrorComponent = new PointsLoadErrorView();
+
+  /**
    * Карта презентеров событий, ключом является ID события
    * @private
    */
@@ -81,10 +113,22 @@ export default class EventsPresenter {
   #filterType = FilterTypes.EVERYTHING;
 
   /**
-   * Контейнер для заголовка
+   * @type {boolean}
+   * @description Флаг, для загрузки данных
    * @private
    */
-  #headerContainer = null;
+  #isLoading = true;
+
+  /**
+   * @type {UiBlocker}
+   * @description Экземпляр класса UiBlocker, который используется для блокировки взаимодействия с интерфейсом пользователя
+   * @property {number} lowerLimit Нижний предел времени блокировки UI
+   * @property {number} upperLimit Верхний предел времени блокировки UI
+   */
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   /**
    * Конструктор презентера событий
@@ -146,15 +190,35 @@ export default class EventsPresenter {
   /** Инициализирует презентер */
   init() {
     this.#renderTripInfo();
-
+    this.#renderEventsListContainer();
     this.#renderEventsBoard();
   }
 
   /** Создает новое событие */
-  createEvent() {
+  createEvent(onNewEventDestroy) {
+    this.#newEventPresenter = new NewEventPresenter({
+      eventListContainer: this.#eventListComponent.element,
+      offers: this.offers,
+      destinations: this.destinations,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewEventDestroy,
+    });
+
     this.#currentSortType = SortTypes.DAY;
     this.#filterModel.setFilter(UpdateTypes.MAJOR, FilterTypes.EVERYTHING);
+
+    if (this.#noEventsComponent) {
+      remove(this.#noEventsComponent);
+    }
+
     this.#newEventPresenter.init();
+  }
+
+  /** Перерисовывает компонент отсутствия событий, если список событий пуст */
+  rerenderNoEventsComponent() {
+    if (this.events.length === 0) {
+      this.#renderNoEvents();
+    }
   }
 
   /**
@@ -173,18 +237,45 @@ export default class EventsPresenter {
    * @param update Обновленные данные
    * @private
    */
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserActions.UPDATE_EVENT:
-        this.#eventsModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
+
+        this.#renderTripInfo();
         break;
       case UserActions.ADD_EVENT:
-        this.#eventsModel.addEvent(updateType, update);
+        this.#newEventPresenter.setSaving();
+
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
+
+        this.#renderTripInfo();
         break;
       case UserActions.DELETE_EVENT:
-        this.#eventsModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#eventsModel.deleteEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
+
+        this.#renderTripInfo();
+
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   /**
@@ -198,15 +289,30 @@ export default class EventsPresenter {
       case UpdateTypes.PATCH:
         this.#eventPresenters.get(data.id).init(data);
         break;
+
       case UpdateTypes.MINOR:
         this.#clearEventsBoard({resetSortType: false});
         this.#renderTripInfo();
         this.#renderEventsBoard();
         break;
+
       case UpdateTypes.MAJOR:
         this.#clearEventsBoard({resetSortType: true});
+        this.#renderEventsBoard();
+        break;
+
+      case UpdateTypes.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderTripInfo();
         this.#renderEventsBoard();
+        break;
+
+      case UpdateTypes.POINTS_LOAD_ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        remove(this.#noEventsComponent);
+        this.#renderPointsLoadError();
         break;
     }
   };
@@ -224,6 +330,11 @@ export default class EventsPresenter {
     this.#clearEventsBoard({resetSortType: false});
     this.#renderEventsBoard();
   };
+
+  /** Рендерит контейнер списка событий */
+  #renderEventsListContainer() {
+    render(this.#eventListComponent, this.#eventsContainer, RenderPosition.BEFOREEND);
+  }
 
   /**
    * Рендерит информацию о поездке
@@ -265,8 +376,17 @@ export default class EventsPresenter {
    * @private
    */
   #renderEventsList() {
-    render(this.#eventListComponent, this.#eventsContainer, RenderPosition.BEFOREEND);
     this.events.forEach((event) => this.#renderEvent(event));
+  }
+
+  /** Рендерит компонент загрузки данных */
+  #renderLoading() {
+    render(this.#loadingComponent, this.#eventsContainer, RenderPosition.BEFOREEND);
+  }
+
+  /** Рендерит компонент ошибки загрузки точек */
+  #renderPointsLoadError() {
+    render(this.#pointsLoadErrorComponent, this.#eventsContainer, RenderPosition.BEFOREEND);
   }
 
   /**
@@ -313,6 +433,7 @@ export default class EventsPresenter {
     this.#clearEventsList();
 
     remove(this.#tripSortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noEventsComponent) {
       remove(this.#noEventsComponent);
@@ -328,10 +449,16 @@ export default class EventsPresenter {
    * @private
    */
   #renderEventsBoard() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.events.length === 0) {
       this.#renderNoEvents();
       return;
     }
+
     this.#renderTripSort();
     this.#renderEventsList();
   }
