@@ -6,6 +6,54 @@ import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
 /**
+ * Создает шаблон HTML-кода для секции предложений
+ * @returns {string} - Шаблон HTML-кода секции предложений
+ */
+function createOffersSectionTemplate(offers, eventChosenTypeOffers) {
+  return eventChosenTypeOffers.offers.length !== 0 ?
+    `<section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+      ${eventChosenTypeOffers ? eventChosenTypeOffers.offers.map((offer) => (`<div class="event__offer-selector">
+      <input
+        class="event__offer-checkbox visually-hidden"
+        id="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}-${offer.id}"
+        type="checkbox"
+        name="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}"
+        data-id="${offer.id}"
+        ${offers.includes(offer.id) ? 'checked' : ''}>
+      <label class="event__offer-label" for="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}-${offer.id}">
+      <span class="event__offer-title">${offer.title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${offer.price}</span>
+      </label>
+    </div>`)).join('') : ''}
+    </div>
+    </section>` : '';
+}
+
+/**
+ * Создает шаблон HTML-кода для секции направления
+ * @returns {string} - Шаблон HTML-кода секции направления
+ */
+function createDestinationSectionTemplate(eventDestination) {
+  if (eventDestination.description === '' && eventDestination.pictures.length === 0) {
+    return '';
+  }
+  return eventDestination ?
+    `<section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${eventDestination ? eventDestination.description : ''}</p>
+      ${eventDestination?.pictures.length !== 0 ? `<div class="event__photos-container">
+      <div class="event__photos-tape">
+      ${eventDestination ? eventDestination.pictures.map((picture) => (`<img class="event__photo" src="${picture.src}"
+      alt="${picture.description}">`)).join('') : ''}
+      </div>
+      </div>` : ''}
+    </section>` : '';
+}
+
+/**
  * Создает HTML-шаблон для редактирования события
  *
  * @param event - Объект события, содержащий информацию о событии
@@ -23,7 +71,7 @@ import he from 'he';
  * @returns {string} - HTML-шаблон для редактирования события
  */
 function createEventEditTemplate(event, availableOffers, destinations) {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = event;
+  const {basePrice, dateFrom, dateTo, destination, offers, type, isSaving, isDeleting} = event;
   const eventDestination = destinations.find((destinationElement) => destinationElement.id === destination);
   const eventChosenTypeOffers = availableOffers.find((offer) => offer.type === type);
   const eventStartTime = formatDate(dateFrom, DateFormats.EDIT_FORM_FORMAT);
@@ -80,47 +128,15 @@ function createEventEditTemplate(event, availableOffers, destinations) {
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
         </button>
       </header>
       <section class="event__details">
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-          <div class="event__available-offers">
-    ${eventChosenTypeOffers ? eventChosenTypeOffers.offers.map((offer) => (
-      `<div class="event__offer-selector">
-        <input
-          class="event__offer-checkbox visually-hidden"
-          id="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}-${offer.id}"
-          type="checkbox"
-          name="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}"
-          ${offers.includes(offer.id) ? 'checked' : ''}>
-        <label class="event__offer-label" for="event-offer-${offer.title.toLowerCase().replaceAll(' ', '-')}-${offer.id}">
-          <span class="event__offer-title">${offer.title}</span>
-            &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
-        </label>
-      </div>`
-    )).join('') : ''}
-          </div>
-        </section>
-
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${eventDestination ? eventDestination.description : ''}</p>
-
-          <div class="event__photos-container">
-            <div class="event__photos-tape">
-    ${eventDestination ? eventDestination.pictures.map((picture) => (
-      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
-    )).join('') : ''}
-            </div>
-          </div>
-        </section>
+        ${createOffersSectionTemplate(offers, eventChosenTypeOffers)}
+        ${createDestinationSectionTemplate(eventDestination)}
       </section>
     </form>
   </li>`
@@ -187,7 +203,11 @@ export default class EventEditView extends AbstractStatefulView {
    */
   constructor({event, offers, destinations, onFormSubmit, onFormRollupClick, onDeleteBtnClick}) {
     super();
-    this._setState(event);
+    this._setState({
+      ...event,
+      isSaving: false,
+      isDeleting: false
+    });
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleFormSubmit = onFormSubmit;
@@ -227,6 +247,8 @@ export default class EventEditView extends AbstractStatefulView {
    */
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    delete this._state.isSaving;
+    delete this._state.isDeleting;
     this.#handleFormSubmit(this._state);
   };
 
@@ -276,11 +298,11 @@ export default class EventEditView extends AbstractStatefulView {
   #offerChangeHandler = (evt) => {
     if (evt.target.checked) {
       this._setState({
-        offers: [...this._state.offers, parseInt(evt.target.id.replace(/[^0-9]/g, ''), 10)],
+        offers: [...this._state.offers, evt.target.dataset.id],
       });
     } else {
       this._state.offers
-        .splice(this._state.offers.findIndex((offer) => offer === parseInt(evt.target.id.replace(/[^0-9]/g, ''), 10)));
+        .splice(this._state.offers.findIndex((offer) => offer === evt.target.dataset.id));
     }
   };
 
@@ -334,6 +356,7 @@ export default class EventEditView extends AbstractStatefulView {
         enableTime: true,
         'time_24hr': true,
         defaultDate: this._state.dateFrom ? this._state.dateFrom : new Date(),
+        maxDate: this._state.dateTo,
         onChange: this.#dateFromChangeHandler,
       },
     );
@@ -385,8 +408,10 @@ export default class EventEditView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#eventTypeChangeHandler);
 
-    this.element.querySelector('.event__available-offers')
-      .addEventListener('change', this.#offerChangeHandler);
+    if (this.element.querySelector('.event__available-offers')) {
+      this.element.querySelector('.event__available-offers')
+        .addEventListener('change', this.#offerChangeHandler);
+    }
 
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);

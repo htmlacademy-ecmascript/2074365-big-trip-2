@@ -1,7 +1,6 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EventAddView from '../view/event-add-view.js';
 import {UpdateTypes, UserActions} from '../constant/constant.js';
-import {getRandomNumber} from '../util/common';
 
 /** Презентер для создания нового события */
 export default class NewEventPresenter {
@@ -87,6 +86,24 @@ export default class NewEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  /** Устанавливает состояние "Сохранение" для компонента добавления события */
+  setSaving() {
+    this.#eventAddComponent.updateElement({
+      isSaving: true,
+    });
+  }
+
+  /** Устанавливает состояние "Отмена" для компонента добавления события */
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventAddComponent.updateElement({
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#eventAddComponent.shake(resetFormState);
+  }
+
   /**
    * Обработчик сохранения формы добавления события
    * @param event Данные из формы
@@ -96,10 +113,8 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserActions.ADD_EVENT,
       UpdateTypes.MAJOR,
-      {id: getRandomNumber(), ...event},
+      event,
     );
-
-    this.destroy();
   };
 
   /**

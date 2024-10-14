@@ -2,24 +2,32 @@ import AbstractView from '../framework/view/abstract-view.js';
 import {DateFormats, formatDate} from '../util/event-utils.js';
 
 /**
+ * Максимальное количество видимых направлений
+ *
+ * @type {number}
+ * @constant
+ */
+const MAX_VISIBLE_DESTINATIONS = 3;
+
+/**
  * Создает HTML-шаблон для блока информации о поездке
  *
  * @param tripInfo - Объект с информацией о поездке
  *
  * @property destinationNames - Список названий пунктов назначения
  * @property totalPrice - Общая стоимость поездки
- * @property events - Список событий поездки
+ * @property eventDates - даты события
  *
  * @returns {string} - HTML-шаблон блока информации о поездке
  */
-function createTripInfoTemplate({destinationNames, totalPrice, events}) {
+function createTripInfoTemplate({destinationNames, totalPrice, eventDates}) {
   const destinations = [...destinationNames];
   return (
     `<section class="trip-main__trip-info  trip-info">
       <div class="trip-info__main">
-        <h1 class="trip-info__title">${destinations.length > 3 ? `${destinations[0]} &mdash;...&mdash; ${destinations[destinations.length - 1]}` : destinations.join(' &mdash; ')}</h1>
+        <h1 class="trip-info__title">${destinations.length > MAX_VISIBLE_DESTINATIONS ? `${destinations[0]} &mdash;...&mdash; ${destinations[destinations.length - 1]}` : destinations.join(' &mdash; ')}</h1>
 
-        <p class="trip-info__dates">${formatDate(events[0].dateFrom, DateFormats.DAY_MONTH)}&nbsp;&mdash;&nbsp;${formatDate(events[events.length - 1].dateTo, DateFormats.DAY_MONTH)}</p>
+        <p class="trip-info__dates">${eventDates}</p>
       </div>
 
       <p class="trip-info__cost">
@@ -75,6 +83,7 @@ export default class TripInfoView extends AbstractView {
     return createTripInfoTemplate({
       destinationNames: this.#getDestinationNames(),
       totalPrice: this.#calculatePrice(),
+      eventDates: this.#getDates(),
       events: this.#events,
     });
   }
@@ -85,6 +94,17 @@ export default class TripInfoView extends AbstractView {
    */
   #getDestinationNames() {
     return this.#events.map((event) => this.#destinations.find((dest) => dest.id === event.destination).name);
+  }
+
+  /**
+   * Возвращает строку с датами начала и окончания события (или только дату начала, если событие одно)
+   * @returns {string} - Строка с датами в формате "день месяц"
+   */
+  #getDates() {
+    return this.#events.length > 1 ?
+      `${formatDate(this.#events[0].dateFrom, DateFormats.DAY_MONTH)}&nbsp;&mdash;&nbsp;${formatDate(this.#events[this.#events.length - 1].dateTo, DateFormats.DAY_MONTH)}`
+      :
+      `${formatDate(this.#events[0].dateFrom, DateFormats.DAY_MONTH)}`;
   }
 
   /**

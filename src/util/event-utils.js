@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Duration from 'dayjs/plugin/duration';
-import {AMOUNT_IN_DAY, AMOUNT_IN_HOUR} from '../constant/constant.js';
+import {AMOUNT_IN_DAY, AMOUNT_IN_HOUR, MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH} from '../constant/constant.js';
 
 dayjs.extend(Duration);
 
@@ -46,37 +46,10 @@ export function calculateDuration(startDate, endDate) {
   if (eventDuration < AMOUNT_IN_HOUR) {
     durationFormat = DateFormats.FORMAT_MINUTE_DIFF;
   }
-  return dayjs.duration(eventDuration).format(durationFormat);
-}
-
-/**
- * Проверяет, находится ли заданная дата в прошлом
- *
- * @param date - Дата для проверки
- * @returns {boolean} True, если дата в прошлом, иначе false
- */
-export function isEventInThePast(date) {
-  return date && dayjs(date).isBefore(dayjs(), 'D');
-}
-
-/**
- * Проверяет, находится ли заданная дата в настоящем
- *
- * @param date - Дата для проверки
- * @returns {boolean} True, если дата в настоящем, иначе false
- */
-export function isEventInThePresent(date) {
-  return date && dayjs(date).isSame(dayjs(), 'D');
-}
-
-/**
- * Проверяет, находится ли заданная дата в будущем
- *
- * @param date - Дата для проверки
- * @returns {boolean} True, если дата в будущем, иначе false
- */
-export function isEventInTheFuture(date) {
-  return date && dayjs(date).isAfter(dayjs(), 'D');
+  return Math.floor(dayjs.duration(eventDuration).asDays()) > MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH ?
+    `${Math.floor(dayjs.duration(eventDuration).asDays())}D
+    ${dayjs.duration(eventDuration).format(DateFormats.FORMAT_MINUTE_HOURS_DIFF)}`
+    : dayjs.duration(eventDuration).format(durationFormat);
 }
 
 /**

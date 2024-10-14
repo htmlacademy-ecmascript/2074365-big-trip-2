@@ -1,5 +1,7 @@
 export const AMOUNT_IN_DAY = 86400000;
 export const AMOUNT_IN_HOUR = 3600000;
+export const MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH = 29;
+export const TEMPLATE_UUID = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
 
 /** Константы типа транстпорта */
 export const EVENT_TYPES = [
@@ -43,4 +45,6 @@ export const UpdateTypes = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
+  POINTS_LOAD_ERROR: 'POINTS_LOAD_ERROR',
 };
