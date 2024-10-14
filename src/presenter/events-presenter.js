@@ -146,10 +146,6 @@ export default class EventsPresenter {
 
 
     this.#newEventPresenter = new NewEventPresenter({
-      eventListContainer: this.#eventListComponent.element,
-      offers: this.offers,
-      destinations: this.destinations,
-      onDataChange: this.#handleViewAction,
       onDestroy: onNewEventDestroy,
     });
 
@@ -220,116 +216,6 @@ export default class EventsPresenter {
       this.#renderNoEvents();
     }
   }
-
-  /**
-   * Обработчик изменения режима
-   * @private
-   */
-  #handleModeChange = () => {
-    this.#newEventPresenter.destroy();
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
-  };
-
-  /**
-   * Обрабатывает изменения во вьюшках и модели
-   * @param actionType Тип действия пользователя
-   * @param updateType Тип изменения данных
-   * @param update Обновленные данные
-   * @private
-   */
-  #handleViewAction = async (actionType, updateType, update) => {
-    this.#uiBlocker.block();
-
-    switch (actionType) {
-      case UserActions.UPDATE_EVENT:
-        this.#eventPresenters.get(update.id).setSaving();
-        try {
-          await this.#eventsModel.updateEvent(updateType, update);
-        } catch (err) {
-          this.#eventPresenters.get(update.id).setAborting();
-        }
-
-        this.#renderTripInfo();
-        break;
-      case UserActions.ADD_EVENT:
-        this.#newEventPresenter.setSaving();
-
-        try {
-          await this.#eventsModel.addEvent(updateType, update);
-        } catch (err) {
-          this.#newEventPresenter.setAborting();
-        }
-
-        this.#renderTripInfo();
-        break;
-      case UserActions.DELETE_EVENT:
-        this.#eventPresenters.get(update.id).setDeleting();
-        try {
-          await this.#eventsModel.deleteEvent(updateType, update);
-        } catch (err) {
-          this.#eventPresenters.get(update.id).setAborting();
-        }
-
-        this.#renderTripInfo();
-
-        break;
-    }
-
-    this.#uiBlocker.unblock();
-  };
-
-  /**
-   * Обрабатывает события модели
-   * @param updateType Тип изменения данных
-   * @param data Обновленные данные
-   * @private
-   */
-  #handleModelEvent = (updateType, data) => {
-    switch (updateType) {
-      case UpdateTypes.PATCH:
-        this.#eventPresenters.get(data.id).init(data);
-        break;
-
-      case UpdateTypes.MINOR:
-        this.#clearEventsBoard({resetSortType: false});
-        this.#renderTripInfo();
-        this.#renderEventsBoard();
-        break;
-
-      case UpdateTypes.MAJOR:
-        this.#clearEventsBoard({resetSortType: true});
-        this.#renderEventsBoard();
-        break;
-
-      case UpdateTypes.INIT:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
-        this.#renderTripInfo();
-        this.#renderEventsBoard();
-        break;
-
-      case UpdateTypes.POINTS_LOAD_ERROR:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
-        remove(this.#noEventsComponent);
-        this.#renderPointsLoadError();
-        break;
-    }
-  };
-
-  /**
-   * Обрабатывает изменение типа сортировки
-   * @param sortType Новый тип сортировки
-   * @private
-   */
-  #handleSortTypeChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
-      return;
-    }
-    this.#currentSortType = sortType;
-    this.#clearEventsBoard({resetSortType: false});
-    this.#renderEventsBoard();
-  };
 
   /** Рендерит контейнер списка событий */
   #renderEventsListContainer() {
@@ -413,8 +299,10 @@ export default class EventsPresenter {
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
+
     eventPresenter.init(event);
     this.#eventPresenters.set(event.id, eventPresenter);
+
   }
 
   /** Очищает список событий */
@@ -462,4 +350,117 @@ export default class EventsPresenter {
     this.#renderTripSort();
     this.#renderEventsList();
   }
+
+  /**
+   * Обработчик изменения режима
+   * @private
+   */
+  #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  /**
+   * Обрабатывает изменения во вьюшках и модели
+   * @param actionType Тип действия пользователя
+   * @param updateType Тип изменения данных
+   * @param update Обновленные данные
+   * @private
+   */
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
+    switch (actionType) {
+      case UserActions.UPDATE_EVENT:
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
+
+        this.#renderTripInfo();
+        break;
+      case UserActions.ADD_EVENT:
+        this.#newEventPresenter.setSaving();
+
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
+
+        this.#renderTripInfo();
+        break;
+      case UserActions.DELETE_EVENT:
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#eventsModel.deleteEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
+
+        this.#renderTripInfo();
+
+        break;
+    }
+
+    this.#uiBlocker.unblock();
+  };
+
+  /**
+   * Обрабатывает события модели
+   * @param updateType Тип изменения данных
+   * @param data Обновленные данные
+   * @private
+   */
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateTypes.PATCH:
+        this.#eventPresenters.get(data.id).init(data);
+        break;
+
+      case UpdateTypes.MINOR:
+        this.#clearEventsBoard({resetSortType: false});
+        this.#renderTripInfo();
+        this.#renderEventsBoard();
+        break;
+
+      case UpdateTypes.MAJOR:
+        this.#clearEventsBoard({resetSortType: true});
+        this.#renderEventsBoard();
+        if (!this.#headerContainer.querySelector('.trip-info')) {
+          this.#renderTripInfo();
+        }
+        break;
+
+      case UpdateTypes.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderTripInfo();
+        this.#renderEventsBoard();
+        break;
+
+      case UpdateTypes.POINTS_LOAD_ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        remove(this.#noEventsComponent);
+        this.#renderPointsLoadError();
+        break;
+    }
+  };
+
+  /**
+   * Обрабатывает изменение типа сортировки
+   * @param sortType Новый тип сортировки
+   * @private
+   */
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#currentSortType = sortType;
+    this.#clearEventsBoard({resetSortType: false});
+    this.#renderEventsBoard();
+  };
 }

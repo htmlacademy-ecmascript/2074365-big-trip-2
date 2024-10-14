@@ -1,6 +1,7 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EventAddView from '../view/event-add-view.js';
 import {UpdateTypes, UserActions} from '../constant/constant.js';
+import {isEscapeKey} from '../util/common.js';
 
 /** Презентер для создания нового события */
 export default class NewEventPresenter {
@@ -131,7 +132,7 @@ export default class NewEventPresenter {
    * @private
    */
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
