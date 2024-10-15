@@ -2,6 +2,7 @@ import {remove, render, replace} from '../framework/render.js';
 import {UpdateTypes, UserActions} from '../constant/constant.js';
 import EventView from '../view/event-view.js';
 import EventEditView from '../view/event-edit-view.js';
+import {isEscapeKey} from '../util/common.js';
 
 /**
  * Перечисление, представляющее различные режимы работы
@@ -216,7 +217,7 @@ export default class EventPresenter {
    * @param {KeyboardEvent} evt Событие нажатия на клавишу
    */
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#eventEditComponent.reset(this.#event);
       this.#replaceFormToEvent();
