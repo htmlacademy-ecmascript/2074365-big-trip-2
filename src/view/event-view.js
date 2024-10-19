@@ -1,6 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {calculateDuration, DateFormats, formatDate} from '../util/event-utils.js';
+import {calculateDuration, formatDate} from '../util/event-utils.js';
 import he from 'he';
+import {DateFormats} from '../constant/constant.js';
+
 
 /**
  * Создает HTML-шаблон для отображения события

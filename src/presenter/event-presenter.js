@@ -157,6 +157,7 @@ export default class EventPresenter {
       this.#eventEditComponent.updateElement({
         isSaving: true,
       });
+      this.#eventEditComponent.element.querySelector('.event__save-btn').disabled = true;
     }
   }
 

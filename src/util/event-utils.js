@@ -1,24 +1,14 @@
 import dayjs from 'dayjs';
 import Duration from 'dayjs/plugin/duration';
-import {AMOUNT_IN_DAY, AMOUNT_IN_HOUR, MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH} from '../constant/constant.js';
+import {
+  AMOUNT_IN_DAY,
+  AMOUNT_IN_HOUR,
+  DateFormats,
+  MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH
+} from '../constant/constant.js';
 
 dayjs.extend(Duration);
 
-
-/**
- * Enum содержащий константы для разных форматов даты
- * @enum {string}
- */
-export const DateFormats = {
-  DAY_MONTH: 'MMM D',
-  YEAR_MONTH_DAY: 'YYYY-MM-D',
-  FULL_DATE: 'YYYY-MM-DTHH:mm',
-  HOURS_MINUTES: 'HH:mm',
-  EDIT_FORM_FORMAT: 'd/m/y H:i',
-  FORMAT_MINUTE_DIFF: 'mm[M]',
-  FORMAT_MINUTE_HOURS_DAY_DIFF: 'DD[D] HH[H] mm[M]',
-  FORMAT_MINUTE_HOURS_DIFF: 'HH[H] mm[M]'
-};
 
 /**
  * Форматирует дату в соответствии с заданным форматом

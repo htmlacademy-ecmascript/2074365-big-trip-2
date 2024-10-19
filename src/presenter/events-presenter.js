@@ -3,7 +3,7 @@ import EventsListView from '../view/events-list-view.js';
 import TripSortView from '../view/trip-sort-view.js';
 import EmptyView from '../view/empty-view.js';
 import EventPresenter from './event-presenter.js';
-import {FilterTypes, SortTypes, UpdateTypes, UserActions} from '../constant/constant.js';
+import {FilterTypes, SortTypes, TimeLimit, UpdateTypes, UserActions} from '../constant/constant.js';
 import {sortEventsByDay, sortEventsByDuration, sortEventsByPrice} from '../util/event-utils.js';
 import {filter} from '../util/filter-utils.js';
 import TripInfoView from '../view/trip-info-view.js';
@@ -12,14 +12,6 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import LoadingView from '../view/loading-view.js';
 import PointsLoadErrorView from '../view/points-load-error-view.js';
 
-/**
- * Константы, определяющие временные ограничения
- * @enum {number}
- */
-const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000,
-};
 
 /** Презентер для представления событий */
 export default class EventsPresenter {

@@ -47,3 +47,71 @@ export const UpdateTypes = {
   INIT: 'INIT',
   POINTS_LOAD_ERROR: 'POINTS_LOAD_ERROR',
 };
+
+/**
+ * Константы, определяющие временные ограничения
+ * @enum {number}
+ */
+export const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+/**
+ * Константы для HTTP-методов
+ * @enum {string}
+ */
+export const Method = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+};
+
+/**
+ * Enum содержащий константы для разных форматов даты
+ * @enum {string}
+ */
+export const DateFormats = {
+  DAY_MONTH: 'MMM D',
+  YEAR_MONTH_DAY: 'YYYY-MM-D',
+  FULL_DATE: 'YYYY-MM-DTHH:mm',
+  HOURS_MINUTES: 'HH:mm',
+  EDIT_FORM_FORMAT: 'd/m/y H:i',
+  FORMAT_MINUTE_DIFF: 'mm[M]',
+  FORMAT_MINUTE_HOURS_DAY_DIFF: 'DD[D] HH[H] mm[M]',
+  FORMAT_MINUTE_HOURS_DIFF: 'HH[H] mm[M]'
+};
+
+/**
+ * Enum, содержащий тексты для отсутствия событий по типу фильтра
+ * @enum {string}
+ */
+export const NoEventsTextType = {
+  /** Текст для отсутствия событий при фильтрации "Все события" */
+  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
+  /** Текст для отсутствия событий при фильтрации "Будущие события" */
+  [FilterTypes.FUTURE]: 'There are no future events now',
+  /** Текст для отсутствия событий при фильтрации "Прошедшие события" */
+  [FilterTypes.PAST]: 'There are no past events now',
+  /** Текст для отсутствия событий при фильтрации "Текущие события" */
+  [FilterTypes.PRESENT]: 'There are no present events now'
+};
+
+/**
+ * Длинное тире
+ * @type {string}
+ */
+export const MD_DASH = '&mdash;';
+
+/**
+ * Многоточие
+ * @type {string}
+ */
+export const ELLIPSIS = '...';
+
+/**
+ * Неразрывный пробел
+ * @type {string}
+ */
+export const NBSP = '&nbsp;';

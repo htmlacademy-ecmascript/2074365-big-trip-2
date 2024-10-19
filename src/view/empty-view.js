@@ -1,20 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {FilterTypes} from '../constant/constant.js';
+import {NoEventsTextType} from '../constant/constant.js';
 
-/**
- * Enum, содержащий тексты для отсутствия событий по типу фильтра
- * @enum {string}
- */
-const NoEventsTextType = {
-  /** Текст для отсутствия событий при фильтрации "Все события" */
-  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
-  /** Текст для отсутствия событий при фильтрации "Будущие события" */
-  [FilterTypes.FUTURE]: 'There are no future events now',
-  /** Текст для отсутствия событий при фильтрации "Прошедшие события" */
-  [FilterTypes.PAST]: 'There are no past events now',
-  /** Текст для отсутствия событий при фильтрации "Текущие события" */
-  [FilterTypes.PRESENT]: 'There are no present events now'
-};
 
 /**
  * Создает шаблон для пустого списка событий с текстом в зависимости от типа фильтра

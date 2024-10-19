@@ -12,22 +12,22 @@ function createNewEventButtonTemplate() {
  * Представление для кнопки создания нового события
  * @extends {AbstractView}
  */
-export default class NewEventButtonView extends AbstractView {
+export default class EventAddBtnView extends AbstractView {
 
   /**
    * Обработчик нажатия на кнопку
    * @private
    */
-  #handleClick = null;
+  #handleNewEventBtnClick = null;
 
   /**
    * Инициализирует представление
-   * @param onClick - Обработчик нажатия на кнопку
+   * @param onNewEventBtnClick - Обработчик нажатия на кнопку
    */
-  constructor({onClick}) {
+  constructor({onNewEventBtnClick}) {
     super();
-    this.#handleClick = onClick;
-    this.element.addEventListener('click', this.#clickHandler);
+    this.#handleNewEventBtnClick = onNewEventBtnClick;
+    this.element.addEventListener('click', this.#newEventBtnClickHandler);
   }
 
   /**
@@ -43,8 +43,8 @@ export default class NewEventButtonView extends AbstractView {
    * @param evt - Событие нажатия на кнопку
    * @private
    */
-  #clickHandler = (evt) => {
+  #newEventBtnClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleClick();
+    this.#handleNewEventBtnClick();
   };
 }
