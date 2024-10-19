@@ -1,6 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {EVENT_TYPES} from '../constant/constant.js';
-import {DateFormats} from '../util/event-utils.js';
+import {DateFormats, EVENT_TYPES} from '../constant/constant.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
@@ -414,7 +413,7 @@ export default class EventAddView extends AbstractStatefulView {
       .addEventListener('change', this.#eventTypeChangeHandler);
 
     this.element.querySelector('.event__input--price')
-      .addEventListener('input', this.#eventPriceChangeHandler);
+      .addEventListener('change', this.#eventPriceChangeHandler);
 
     this.element.querySelector('.event__reset-btn')
       .addEventListener('click', this.#formDeleteBtnClickHandler);

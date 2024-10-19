@@ -1,15 +1,6 @@
 import ApiService from '../framework/api-service.js';
+import {Method} from '../constant/constant.js';
 
-/**
- * Константы для HTTP-методов
- * @enum {string}
- */
-const Method = {
-  GET: 'GET',
-  POST: 'POST',
-  PUT: 'PUT',
-  DELETE: 'DELETE',
-};
 
 /**
  * Сервис для работы с событиями

@@ -2,7 +2,7 @@ import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 import EventsPresenter from './presenter/events-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
-import NewEventButtonView from './view/new-event-button-view.js';
+import EventAddBtnView from './view/event-add-btn-view.js';
 import {render} from './framework/render.js';
 import EventsApiService from './service/events-api-service.js';
 import {generateUUID} from './util/common.js';
@@ -78,10 +78,10 @@ const filterPresenter = new FilterPresenter({
 
 /**
  * Компонент кнопки добавления нового события
- * @type {NewEventButtonView}
+ * @type {EventAddBtnView}
  */
-const newEventButtonComponent = new NewEventButtonView({
-  onClick: handleNewEventButtonClick
+const newEventButtonComponent = new EventAddBtnView({
+  onNewEventBtnClick: handleNewEventButtonClick
 });
 
 /**
