@@ -30,15 +30,17 @@ export function formatDate(date, format) {
 export function calculateDuration(startDate, endDate) {
   const eventDuration = dayjs(endDate).diff(startDate);
   let durationFormat = DateFormats.FORMAT_MINUTE_HOURS_DAY_DIFF;
+
   if (eventDuration < AMOUNT_IN_DAY) {
     durationFormat = DateFormats.FORMAT_MINUTE_HOURS_DIFF;
   }
+
   if (eventDuration < AMOUNT_IN_HOUR) {
     durationFormat = DateFormats.FORMAT_MINUTE_DIFF;
   }
+
   return Math.floor(dayjs.duration(eventDuration).asDays()) > MAX_DAYS_BEFORE_CONVERTING_INTO_MONTH ?
-    `${Math.floor(dayjs.duration(eventDuration).asDays())}D
-    ${dayjs.duration(eventDuration).format(DateFormats.FORMAT_MINUTE_HOURS_DIFF)}`
+    `${Math.floor(dayjs.duration(eventDuration).asDays())}D ${dayjs.duration(eventDuration).format(DateFormats.FORMAT_MINUTE_HOURS_DIFF)}`
     : dayjs.duration(eventDuration).format(durationFormat);
 }
 

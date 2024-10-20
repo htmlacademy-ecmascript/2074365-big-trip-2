@@ -74,6 +74,7 @@ export const Method = {
  */
 export const DateFormats = {
   DAY_MONTH: 'MMM D',
+  MONTH_DAY: 'D MMM',
   YEAR_MONTH_DAY: 'YYYY-MM-D',
   FULL_DATE: 'YYYY-MM-DTHH:mm',
   HOURS_MINUTES: 'HH:mm',
@@ -103,6 +104,12 @@ export const NoEventsTextType = {
  * @type {string}
  */
 export const MD_DASH = '&mdash;';
+
+/**
+ * Длинное тире c пробелами
+ * @type {string}
+ */
+export const MD_DASH_SPACE = ' &mdash; ';
 
 /**
  * Многоточие
