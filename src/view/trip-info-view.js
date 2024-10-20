@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {formatDate} from '../util/event-utils.js';
-import {DateFormats, ELLIPSIS, MD_DASH, NBSP} from '../constant/constant.js';
+import {DateFormats, ELLIPSIS, MD_DASH, MD_DASH_SPACE, NBSP} from '../constant/constant.js';
 
 
 /**
@@ -28,10 +28,9 @@ function createTripInfoTemplate({destinationNames, totalPrice, eventDates}) {
     `<section class="trip-main__trip-info  trip-info">
       <div class="trip-info__main">
         <h1 class="trip-info__title">${destinations.length > MAX_VISIBLE_DESTINATIONS ?
-      `${destinations[0]} ${MD_DASH + ELLIPSIS + MD_DASH} ${destinations[destinations.length - 1]}` : destinations.join(MD_DASH)}</h1>
+      `${destinations[0]} ${MD_DASH + ELLIPSIS + MD_DASH} ${destinations[destinations.length - 1]}` : destinations.join(MD_DASH_SPACE)}</h1>
         <p class="trip-info__dates">${eventDates}</p>
       </div>
-
       <p class="trip-info__cost">
         Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span>
       </p>
@@ -104,9 +103,9 @@ export default class TripInfoView extends AbstractView {
    */
   #getDates() {
     return this.#events.length > 1 ?
-      `${formatDate(this.#events[0].dateFrom, DateFormats.DAY_MONTH)} ${NBSP + MD_DASH + NBSP} ${formatDate(this.#events[this.#events.length - 1].dateTo, DateFormats.DAY_MONTH)}`
+      `${formatDate(this.#events[0].dateFrom, DateFormats.MONTH_DAY)}${NBSP + MD_DASH + NBSP}${formatDate(this.#events[this.#events.length - 1].dateTo, DateFormats.MONTH_DAY)}`
       :
-      `${formatDate(this.#events[0].dateFrom, DateFormats.DAY_MONTH)} ${NBSP + MD_DASH + NBSP} ${formatDate(this.#events[0].dateTo, DateFormats.DAY_MONTH)}`;
+      `${formatDate(this.#events[0].dateFrom, DateFormats.MONTH_DAY)}${NBSP + MD_DASH + NBSP}${formatDate(this.#events[0].dateTo, DateFormats.MONTH_DAY)}`;
   }
 
   /**
